@@ -43,7 +43,13 @@ def determine_tier(matches, strong_match):
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    conn = get_db()
+    total_prizes = conn.execute(
+        "SELECT SUM(winners * prize) FROM prize_tiers WHERE game_type='regular'"
+    ).fetchone()[0] or 0
+    conn.close()
+    total_prizes_fmt = f"₪{total_prizes / 1_000_000_000:.2f}B"
+    return render_template("home.html", total_prizes_fmt=total_prizes_fmt)
 
 @app.route("/search")
 def search():
@@ -115,30 +121,33 @@ def search_combination():
     conn = get_db()
     c    = conn.cursor()
 
+    # Use OR so we catch every draw where at least one number appears,
+    # then calculate actual matches and keep only prize-winning draws (≥3).
     conds  = ["(num1=? OR num2=? OR num3=? OR num4=? OR num5=? OR num6=?)" for _ in nums]
     params = [v for n in nums for v in [n]*6]
 
     rows = c.execute(f"""
         SELECT id, draw_date, num1,num2,num3,num4,num5,num6,
                strong_number, first_prize_lotto
-        FROM lotteries WHERE {' AND '.join(conds)} ORDER BY id
+        FROM lotteries WHERE {' OR '.join(conds)} ORDER BY id
     """, params).fetchall()
 
-    result = []
+    num_set = set(nums)
+    result  = []
     for draw in rows:
         draw_set     = {draw["num1"],draw["num2"],draw["num3"],
                         draw["num4"],draw["num5"],draw["num6"]}
-        matches      = len(set(nums) & draw_set)
+        matches      = len(num_set & draw_set)
         strong_match = strong is not None and strong == draw["strong_number"]
         tier         = determine_tier(matches, strong_match)
-        prize        = None
-        if tier:
-            pr = c.execute(
-                "SELECT prize FROM prize_tiers "
-                "WHERE lottery_id=? AND game_type='regular' AND tier=?",
-                (draw["id"], tier)
-            ).fetchone()
-            prize = pr["prize"] if pr else None
+        if tier is None:
+            continue          # skip non-prize draws
+        pr = c.execute(
+            "SELECT prize FROM prize_tiers "
+            "WHERE lottery_id=? AND game_type='regular' AND tier=?",
+            (draw["id"], tier)
+        ).fetchone()
+        prize = pr["prize"] if pr else None
         result.append({**row_to_draw(draw),
                         "matches": matches, "strong_match": strong_match,
                         "tier": tier, "prize": prize})
@@ -250,6 +259,87 @@ def get_facts():
         "hot":               hot,
         "cold":              cold,
         "avg_sum":           avg_sum,
+    })
+
+
+@app.route("/api/compare")
+def compare_combos():
+    nums1_str  = request.args.get("nums1",   "")
+    nums2_str  = request.args.get("nums2",   "")
+    strong1_str = request.args.get("strong1", "").strip()
+    strong2_str = request.args.get("strong2", "").strip()
+    last_n = request.args.get("last_n", type=int, default=50)
+
+    try:
+        nums1   = [int(n) for n in nums1_str.split(",")   if n.strip()]
+        nums2   = [int(n) for n in nums2_str.split(",")   if n.strip()]
+        strong1 = int(strong1_str) if strong1_str else None
+        strong2 = int(strong2_str) if strong2_str else None
+    except ValueError:
+        return jsonify({"error": "Invalid numbers"}), 400
+
+    if len(nums1) != 6 or len(nums2) != 6:
+        return jsonify({"error": "Each combination needs exactly 6 main numbers"}), 400
+    if any(n < 1 or n > 37 for n in nums1 + nums2):
+        return jsonify({"error": "Main numbers must be between 1 and 37"}), 400
+    if strong1 is not None and not (1 <= strong1 <= 7):
+        return jsonify({"error": "Strong number A must be between 1 and 7"}), 400
+    if strong2 is not None and not (1 <= strong2 <= 7):
+        return jsonify({"error": "Strong number B must be between 1 and 7"}), 400
+    if not (1 <= last_n <= 1672):
+        return jsonify({"error": "Draw count must be between 1 and 1672"}), 400
+
+    conn = get_db()
+    c    = conn.cursor()
+
+    draws = c.execute("""
+        SELECT id, draw_date, num1,num2,num3,num4,num5,num6,
+               strong_number, first_prize_lotto
+        FROM lotteries ORDER BY id DESC LIMIT ?
+    """, (last_n,)).fetchall()
+
+    set1, set2 = set(nums1), set(nums2)
+
+    def prize_for(draw_id, tier):
+        if not tier:
+            return 0
+        row = c.execute(
+            "SELECT prize FROM prize_tiers WHERE lottery_id=? AND game_type='regular' AND tier=?",
+            (draw_id, tier)
+        ).fetchone()
+        return row["prize"] if row else 0
+
+    results1, results2 = [], []
+    total1 = total2 = 0
+
+    for draw in draws:
+        draw_set = {draw["num1"],draw["num2"],draw["num3"],
+                    draw["num4"],draw["num5"],draw["num6"]}
+
+        m1 = len(set1 & draw_set)
+        sm1 = strong1 is not None and strong1 == draw["strong_number"]
+        t1 = determine_tier(m1, sm1)
+        p1 = prize_for(draw["id"], t1)
+        total1 += p1
+
+        m2 = len(set2 & draw_set)
+        sm2 = strong2 is not None and strong2 == draw["strong_number"]
+        t2 = determine_tier(m2, sm2)
+        p2 = prize_for(draw["id"], t2)
+        total2 += p2
+
+        base = row_to_draw(draw)
+        results1.append({**base, "matches": m1, "strong_match": sm1, "tier": t1, "prize": p1})
+        results2.append({**base, "matches": m2, "strong_match": sm2, "tier": t2, "prize": p2})
+
+    conn.close()
+    return jsonify({
+        "combo1":        {"numbers": sorted(nums1), "strong": strong1,
+                          "total_prize": total1, "draws": results1},
+        "combo2":        {"numbers": sorted(nums2), "strong": strong2,
+                          "total_prize": total2, "draws": results2},
+        "draws_checked": len(draws),
+        "winner":        1 if total1 > total2 else (2 if total2 > total1 else 0),
     })
 
 

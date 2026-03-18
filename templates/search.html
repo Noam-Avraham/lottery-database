@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% set active = "search" %}
-{% block title %}Search — Israel Lotto Archive{% endblock %}
+{% block title %}Explore — Israel Lotto Archive{% endblock %}
 
 {% block extra_styles %}
-.page-header { background: #1a1d2e; border-bottom: 1px solid #2d3748; padding: 1.5rem 2rem; }
+.page-header { background: #1a1d2e; border-bottom: 1px solid #2d3748; padding: 1.5rem 2rem; text-align: center; }
 .page-header h1 { font-size: 1.3rem; font-weight: 700; color: #f6ad55; }
 .page-header p  { color: #718096; font-size: 0.88rem; margin-top: 0.25rem; }
 
-.tabs { display:flex; background:#13151f; border-bottom:1px solid #2d3748; padding:0 2rem; }
+.tabs { display:flex; justify-content:center; background:#13151f; border-bottom:1px solid #2d3748; padding:0 2rem; }
 .tab-btn {
   padding:0.9rem 1.8rem; background:none; border:none;
   border-bottom:3px solid transparent; color:#718096;
@@ -18,16 +18,16 @@
 
 .search-card {
   background:#1a1d2e; border:1px solid #2d3748; border-radius:12px;
-  padding:1.8rem; margin-bottom:2rem;
+  padding:1.8rem; margin-bottom:2rem; text-align:center;
 }
 .search-card h2 { font-size:1.05rem; color:#f6ad55; margin-bottom:0.35rem; }
 .search-card p  { color:#718096; font-size:0.86rem; margin-bottom:1.2rem; }
 
-.input-row { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end; }
+.input-row { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end; justify-content:center; }
 .field { display:flex; flex-direction:column; gap:0.3rem; }
 .field label { font-size:0.78rem; color:#a0aec0; text-transform:uppercase; letter-spacing:.05em; }
 /* Custom dropdowns (always open downward) */
-.date-selects { display:flex; gap:0.75rem; align-items:flex-end; flex-wrap:wrap; }
+.date-selects { display:flex; gap:0.75rem; align-items:flex-end; flex-wrap:wrap; justify-content:center; }
 .field { display:flex; flex-direction:column; gap:0.3rem; }
 .field label { font-size:0.78rem; color:#a0aec0; text-transform:uppercase; letter-spacing:.05em; }
 .cdd { position:relative; min-width:160px; }
@@ -59,9 +59,9 @@
 .cdd-item.selected { color:#f6ad55; font-weight:600; }
 
 /* Number pickers */
-.picker-legend { display:flex; gap:1.5rem; margin-bottom:0.6rem; font-size:0.8rem; color:#718096; }
+.picker-legend { display:flex; gap:1.5rem; margin-bottom:0.6rem; font-size:0.8rem; color:#718096; justify-content:center; }
 .legend-dot { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:4px; vertical-align:middle; }
-.num-grid { display:flex; flex-wrap:wrap; gap:0.4rem; margin:0.6rem 0 1rem; max-width:560px; }
+.num-grid { display:flex; flex-wrap:wrap; gap:0.4rem; margin:0.6rem 0 1rem; justify-content:center; }
 .num-btn {
   width:38px; height:38px; border-radius:50%; border:2px solid #4a5568;
   background:#0f1117; color:#a0aec0; font-size:0.82rem; font-weight:600;
@@ -69,7 +69,12 @@
 }
 .num-btn:hover { border-color:#f6ad55; color:#f6ad55; }
 .num-btn.selected { background:#f6ad55; border-color:#f6ad55; color:#0f1117; }
-.strong-grid { display:flex; gap:0.4rem; margin-bottom:1rem; }
+.strong-grid { display:flex; gap:0.4rem; margin-bottom:1rem; justify-content:center; }
+.tier-select {
+  background:#0f1117; border:1px solid #4a5568; border-radius:8px;
+  color:#e2e8f0; padding:0.6rem 0.9rem; font-size:0.88rem; cursor:pointer;
+}
+.tier-select:focus { outline:none; border-color:#f6ad55; }
 .strong-btn {
   width:38px; height:38px; border-radius:50%; border:2px solid #2d7d4f;
   background:#0f1117; color:#68d391; font-size:0.82rem; font-weight:600; cursor:pointer; transition:all .15s;
@@ -77,9 +82,9 @@
 .strong-btn:hover,.strong-btn.strong-selected { background:#38a169; border-color:#38a169; color:white; }
 
 /* Results */
-.result-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+.result-header { display:flex; align-items:center; justify-content:center; gap:0.75rem; margin-bottom:1rem; }
 .result-header h3 { font-size:1rem; color:#e2e8f0; }
-.freq-bar { display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:1.2rem; }
+.freq-bar { display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:1.2rem; justify-content:center; }
 .freq-pill {
   display:flex; flex-direction:column; align-items:center;
   background:#1e2233; border:1px solid #2d3748; border-radius:8px;
@@ -87,11 +92,11 @@
 }
 .freq-pill .fn { font-size:0.88rem; font-weight:700; color:#f6ad55; }
 .freq-pill .fc { font-size:0.68rem; color:#718096; }
-.tier-summary { display:flex; flex-wrap:wrap; gap:0.6rem; margin-bottom:1.2rem; }
+.tier-summary { display:flex; flex-wrap:wrap; gap:0.6rem; margin-bottom:1.2rem; justify-content:center; }
 .tier-pill { background:#1a2744; border:1px solid #2d4a7a; border-radius:8px; padding:0.45rem 0.9rem; text-align:center; }
 .tier-pill .tc { font-size:1.1rem; font-weight:700; color:#63b3ed; }
 .tier-pill .tp { font-size:0.76rem; color:#90cdf4; }
-.toggle-link { color:#63b3ed; background:none; border:none; cursor:pointer; font-size:0.83rem; padding:0.4rem 0; text-decoration:underline; }
+.toggle-link { display:block; text-align:center; color:#63b3ed; background:none; border:none; cursor:pointer; font-size:0.83rem; padding:0.4rem 0; text-decoration:underline; width:100%; }
 .draw-table-wrap { overflow-x:auto; margin-top:0.8rem; }
 table { width:100%; border-collapse:collapse; font-size:0.86rem; }
 thead th { background:#1e2233; padding:0.65rem 0.9rem; text-align:left; color:#a0aec0; font-weight:600; border-bottom:1px solid #2d3748; }
@@ -105,17 +110,73 @@ tbody td.muted { color:#718096; }
 .tier-tag.none { background:#1a1d2e; color:#4a5568; }
 .prize-val { color:#68d391; font-weight:600; }
 
+/* ── Compare tab ── */
+.compare-grid {
+  display:grid; grid-template-columns:1fr 44px 1fr; gap:1rem; align-items:start;
+}
+.combo-side { min-width:0; }
+.combo-label {
+  font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em;
+  margin-bottom:0.7rem; padding:0.3rem 0.7rem; border-radius:6px; display:inline-block;
+}
+.combo-label-a { background:#3d2800; color:#f6ad55; }
+.combo-label-b { background:#1a2744; color:#63b3ed; }
+.vs-col { display:flex; align-items:center; justify-content:center; padding-top:1.8rem; }
+.vs-badge { font-size:1rem; font-weight:800; color:#4a5568; }
+.cmp-num-grid { display:flex; flex-wrap:wrap; gap:0.3rem; margin:0.5rem 0 0.9rem; }
+.cmp-strong-row { display:flex; gap:0.3rem; margin-bottom:0.5rem; }
+.cmp-num-btn {
+  width:33px; height:33px; border-radius:50%; border:2px solid #4a5568;
+  background:#0f1117; color:#a0aec0; font-size:0.78rem; font-weight:600;
+  cursor:pointer; transition:all 0.12s;
+}
+.cmp-num-btn:hover   { border-color:#718096; color:#e2e8f0; }
+.cmp-num-btn.sel-a   { background:#f6ad55; border-color:#f6ad55; color:#0f1117; }
+.cmp-num-btn.sel-b   { background:#63b3ed; border-color:#63b3ed; color:#0f1117; }
+.cmp-str-btn {
+  width:33px; height:33px; border-radius:50%; border:2px solid #2d7d4f;
+  background:#0f1117; color:#68d391; font-size:0.78rem; font-weight:600;
+  cursor:pointer; transition:all 0.12s;
+}
+.cmp-str-btn.sel-a-s { background:#38a169; border-color:#38a169; color:#fff; }
+.cmp-str-btn.sel-b-s { background:#2b6cb0; border-color:#2b6cb0; color:#fff; }
+.cmp-n-input {
+  background:#0f1117; border:1px solid #4a5568; border-radius:8px;
+  color:#e2e8f0; padding:0.6rem 0.9rem; font-size:0.92rem; width:110px;
+}
+.cmp-n-input:focus { outline:none; border-color:#f6ad55; }
+/* Score cards */
+.compare-score {
+  display:grid; grid-template-columns:1fr 80px 1fr; gap:1rem;
+  align-items:center; margin-bottom:1.5rem;
+}
+.score-card {
+  background:#1a1d2e; border:2px solid #2d3748; border-radius:12px;
+  padding:1.4rem; text-align:center; transition:border-color 0.3s;
+}
+.score-card.winner { border-color:#f6ad55; }
+.score-card.winner-b { border-color:#63b3ed; }
+.score-combo-label { font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:0.4rem; }
+.score-combo-label.a { color:#f6ad55; }
+.score-combo-label.b { color:#63b3ed; }
+.score-nums { font-size:0.78rem; color:#a0aec0; margin-bottom:0.6rem; }
+.score-prize { font-size:1.7rem; font-weight:800; color:#68d391; }
+.score-wins { font-size:0.8rem; color:#718096; margin-top:0.3rem; }
+.vs-center { text-align:center; }
+.vs-trophy { font-size:1.6rem; }
+.vs-text { font-size:0.76rem; margin-top:0.2rem; }
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
-  <h1>Search the Archive</h1>
-  <p>Look up draws by date, or check how a number combination performed historically.</p>
+  <h1>Explore the Archive</h1>
+  <p>Search draws by date, check a combination's history, or compare two combinations head-to-head.</p>
 </div>
 
 <div class="tabs">
   <button class="tab-btn active" id="tab-date-btn"  onclick="switchTab('date')">🗓 Search by Date</button>
-  <button class="tab-btn"        id="tab-combo-btn" onclick="switchTab('combo')">🎰 Check Combination</button>
+  <button class="tab-btn"        id="tab-combo-btn"   onclick="switchTab('combo')">🎰 Check Combination</button>
+  <button class="tab-btn"        id="tab-compare-btn" onclick="switchTab('compare')">⚖️ Compare Two</button>
 </div>
 
 <div class="container" style="max-width:960px;">
@@ -164,6 +225,73 @@ tbody td.muted { color:#718096; }
     </div>
   </div>
 
+  <!-- Compare tab -->
+  <div id="tab-compare" class="tab-panel" style="display:none;">
+    <div class="search-card">
+      <h2>Compare Two Combinations</h2>
+      <p>Pick 6 numbers for each combination, set how many recent draws to check, and see which combination would have won more prize money.</p>
+
+      <div class="compare-grid">
+        <!-- Combo A -->
+        <div class="combo-side">
+          <div class="combo-label combo-label-a">Combination A</div>
+          <p style="font-size:0.78rem;color:#718096;margin:0.5rem 0 0.3rem;">Main numbers (pick 6):</p>
+          <div class="cmp-num-grid" id="cmp-a-main"></div>
+          <p style="font-size:0.78rem;color:#718096;margin-bottom:0.3rem;">Strong number (optional):</p>
+          <div class="cmp-strong-row" id="cmp-a-strong"></div>
+        </div>
+        <!-- VS -->
+        <div class="vs-col"><span class="vs-badge">VS</span></div>
+        <!-- Combo B -->
+        <div class="combo-side">
+          <div class="combo-label combo-label-b">Combination B</div>
+          <p style="font-size:0.78rem;color:#718096;margin:0.5rem 0 0.3rem;">Main numbers (pick 6):</p>
+          <div class="cmp-num-grid" id="cmp-b-main"></div>
+          <p style="font-size:0.78rem;color:#718096;margin-bottom:0.3rem;">Strong number (optional):</p>
+          <div class="cmp-strong-row" id="cmp-b-strong"></div>
+        </div>
+      </div>
+
+      <div class="input-row" style="margin-top:1.2rem;">
+        <div class="field">
+          <label>Last N draws</label>
+          <input class="cmp-n-input" type="number" id="cmp-last-n" value="50" min="1" max="1672" placeholder="50">
+        </div>
+        <button class="btn btn-primary" onclick="compareCombo()">Compare</button>
+        <button class="btn btn-secondary" onclick="clearCompare()">Clear</button>
+      </div>
+      <div id="compare-error" class="error-msg"></div>
+    </div>
+
+    <div id="compare-results" style="display:none;">
+      <div class="compare-score">
+        <div class="score-card" id="score-a">
+          <div class="score-combo-label a">Combination A</div>
+          <div class="score-nums" id="score-a-nums"></div>
+          <div class="score-prize" id="score-a-prize"></div>
+          <div class="score-wins" id="score-a-wins"></div>
+        </div>
+        <div class="vs-center">
+          <div class="vs-trophy" id="score-trophy"></div>
+          <div class="vs-text" id="score-label"></div>
+        </div>
+        <div class="score-card" id="score-b">
+          <div class="score-combo-label b">Combination B</div>
+          <div class="score-nums" id="score-b-nums"></div>
+          <div class="score-prize" id="score-b-prize"></div>
+          <div class="score-wins" id="score-b-wins"></div>
+        </div>
+      </div>
+      <button class="toggle-link" id="compare-toggle" onclick="toggleTable('compare')">Show draw-by-draw breakdown ▼</button>
+      <div id="compare-table-wrap" class="draw-table-wrap" style="display:none;">
+        <table>
+          <thead><tr><th>#</th><th>Date</th><th>Numbers</th><th>A tier</th><th>A Prize</th><th>B tier</th><th>B Prize</th></tr></thead>
+          <tbody id="compare-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- Combo tab -->
   <div id="tab-combo" class="tab-panel" style="display:none;">
     <div class="search-card">
@@ -178,6 +306,20 @@ tbody td.muted { color:#718096; }
       <p style="font-size:0.78rem;color:#718096;margin-bottom:0.4rem;">Strong number (optional):</p>
       <div class="strong-grid" id="strong-grid"></div>
       <div class="input-row" style="margin-top:0.5rem;">
+        <div class="field">
+          <label>Minimum prize tier</label>
+          <select class="tier-select" id="combo-min-tier">
+            <option value="">All results</option>
+            <option value="3">3 or better</option>
+            <option value="3 + חזק">3 +1 or better</option>
+            <option value="4">4 or better</option>
+            <option value="4 + חזק">4 +1 or better</option>
+            <option value="5">5 or better</option>
+            <option value="5 + חזק">5 +1 or better</option>
+            <option value="6">6 or better</option>
+            <option value="6 + חזק">6 +1 only</option>
+          </select>
+        </div>
         <button class="btn btn-primary" onclick="searchCombo()">Search</button>
         <button class="btn btn-secondary" onclick="clearCombo()">Clear</button>
       </div>
@@ -201,7 +343,7 @@ tbody td.muted { color:#718096; }
 
 <script>
 function switchTab(name) {
-  ['date','combo'].forEach(t => {
+  ['date','combo','compare'].forEach(t => {
     document.getElementById('tab-'+t).style.display = t===name ? 'block' : 'none';
     document.getElementById('tab-'+t+'-btn').classList.toggle('active', t===name);
   });
@@ -233,6 +375,7 @@ function clearCombo() {
   selectedNums.clear(); selectedStrong=null;
   document.querySelectorAll('.num-btn').forEach(b=>b.classList.remove('selected'));
   document.querySelectorAll('.strong-btn').forEach(b=>b.classList.remove('strong-selected'));
+  document.getElementById('combo-min-tier').value='';
   document.getElementById('combo-results').style.display='none';
   document.getElementById('combo-error').textContent='';
 }
@@ -243,14 +386,16 @@ function ballHtml(nums, hitNums, strong, strongHit) {
   if (strong!=null) h+=`<span class="ball ${strongHit?'strong-hit':'strong'}">${strong}</span>`;
   return h;
 }
+function tierDisp(t) { return t ? t.replace(' + חזק',' +1') : t; }
 function tierTag(tier) {
   if (!tier) return `<span class="tier-tag none">—</span>`;
   const big=tier.startsWith('6')||tier.startsWith('5');
-  return `<span class="tier-tag ${big?'big':'win'}">${tier}</span>`;
+  return `<span class="tier-tag ${big?'big':'win'}">${tierDisp(tier)}</span>`;
 }
 function toggleTable(tab) {
   const w=document.getElementById(tab+'-table-wrap'), t=document.getElementById(tab+'-toggle'), h=w.style.display==='none';
-  w.style.display=h?'block':'none'; t.textContent=h?'Hide draw list ▲':'Show full draw list ▼';
+  const label=tab==='compare'?'draw-by-draw breakdown':'draw list';
+  w.style.display=h?'block':'none'; t.textContent=h?'Hide '+label+' ▲':'Show '+label+' ▼';
 }
 
 // ── Custom dropdowns ─────────────────────────────────────────────────────────
@@ -340,6 +485,8 @@ async function searchDate() {
   document.getElementById('date-results').style.display = 'block';
 }
 
+const TIER_RANK = {'3':1,'3 + חזק':2,'4':3,'4 + חזק':4,'5':5,'5 + חזק':6,'6':7,'6 + חזק':8};
+
 async function searchCombo() {
   const err=document.getElementById('combo-error'); err.textContent='';
   if (!selectedNums.size){err.textContent='Select at least one number.';return;}
@@ -347,16 +494,26 @@ async function searchCombo() {
   const data=await fetch(`/api/combination?nums=${[...selectedNums].join(',')}&strong=${selectedStrong??''}`).then(r=>r.json());
   err.textContent='';
   if (data.error){err.textContent=data.error;return;}
+
+  const minTier=document.getElementById('combo-min-tier').value;
+  const minRank=minTier ? TIER_RANK[minTier] : 0;
+  const draws=minRank>0 ? data.draws.filter(d=>d.tier && TIER_RANK[d.tier]>=minRank) : data.draws;
+
   const nl=[...selectedNums].sort((a,b)=>a-b).join(', ');
+  const filterLabel=minTier ? ` · min tier: ${tierDisp(minTier)}` : '';
   document.getElementById('combo-title').textContent=`${nl}${selectedStrong?' + Strong '+selectedStrong:''}`;
-  document.getElementById('combo-count').textContent=`${data.total} draws matched`;
+  document.getElementById('combo-count').textContent=`${draws.length} draws matched${filterLabel}`;
+
+  const tierCounts={};
+  draws.forEach(d=>{ if(d.tier) tierCounts[d.tier]=(tierCounts[d.tier]||0)+1; });
   const te=document.getElementById('combo-tiers'); te.innerHTML='';
   ['6 + חזק','6','5 + חזק','5','4 + חזק','4','3 + חזק','3'].forEach(t=>{
-    if (data.tier_summary[t]) te.innerHTML+=`<div class="tier-pill"><div class="tc">${data.tier_summary[t]}×</div><div class="tp">${t}</div></div>`;
+    if (tierCounts[t]) te.innerHTML+=`<div class="tier-pill"><div class="tc">${tierCounts[t]}×</div><div class="tp">${tierDisp(t)}</div></div>`;
   });
   if (!te.innerHTML) te.innerHTML=`<span style="color:#718096;font-size:0.86rem;">No prizes in any matched draw.</span>`;
+
   const tb=document.getElementById('combo-tbody'); tb.innerHTML='';
-  data.draws.forEach(d=>{
+  draws.forEach(d=>{
     tb.innerHTML+=`<tr><td class="muted">${d.id}</td><td>${d.date}</td><td>${ballHtml(d.numbers,[...selectedNums],null,false)}</td><td>${ballHtml([],[],d.strong,d.strong_match)}</td><td>${d.matches}${d.strong_match?' +✓':''}</td><td>${tierTag(d.tier)}</td><td class="${d.prize?'prize-val':'muted'}">${fmt(d.prize)}</td></tr>`;
   });
   document.getElementById('combo-table-wrap').style.display='none';
@@ -364,10 +521,142 @@ async function searchCombo() {
   document.getElementById('combo-results').style.display='block';
 }
 
+// ── Compare tab ──────────────────────────────────────────────────────────────
+const cmpState = {
+  a: { nums: new Set(), strong: null },
+  b: { nums: new Set(), strong: null },
+};
+
+function buildComparePickers() {
+  ['a','b'].forEach(side => {
+    const mg = document.getElementById('cmp-'+side+'-main');
+    for (let n=1;n<=37;n++) {
+      const b=document.createElement('button'); b.className='cmp-num-btn'; b.textContent=n; b.dataset.n=n;
+      b.onclick=()=>toggleCmpMain(side,n,b); mg.appendChild(b);
+    }
+    const sg = document.getElementById('cmp-'+side+'-strong');
+    for (let n=1;n<=7;n++) {
+      const b=document.createElement('button'); b.className='cmp-str-btn'; b.textContent=n; b.dataset.n=n;
+      b.onclick=()=>toggleCmpStrong(side,n,b); sg.appendChild(b);
+    }
+  });
+}
+
+function toggleCmpMain(side, n, btn) {
+  const st=cmpState[side]; const cls='sel-'+side;
+  if (st.nums.has(n)) { st.nums.delete(n); btn.classList.remove(cls); }
+  else if (st.nums.size<6) { st.nums.add(n); btn.classList.add(cls); }
+}
+
+function toggleCmpStrong(side, n, btn) {
+  const st=cmpState[side]; const cls='sel-'+side+'-s';
+  const container=document.getElementById('cmp-'+side+'-strong');
+  if (st.strong===n) { st.strong=null; btn.classList.remove(cls); }
+  else { container.querySelectorAll('.cmp-str-btn').forEach(b=>b.classList.remove(cls)); st.strong=n; btn.classList.add(cls); }
+}
+
+function clearCompare() {
+  ['a','b'].forEach(side => {
+    cmpState[side].nums.clear(); cmpState[side].strong=null;
+    document.getElementById('cmp-'+side+'-main').querySelectorAll('.cmp-num-btn').forEach(b=>b.classList.remove('sel-'+side));
+    document.getElementById('cmp-'+side+'-strong').querySelectorAll('.cmp-str-btn').forEach(b=>b.classList.remove('sel-'+side+'-s'));
+  });
+  document.getElementById('compare-results').style.display='none';
+  document.getElementById('compare-error').textContent='';
+}
+
+async function compareCombo() {
+  const err=document.getElementById('compare-error'); err.textContent='';
+  if (cmpState.a.nums.size!==6){err.textContent='Combination A needs exactly 6 numbers.';return;}
+  if (cmpState.b.nums.size!==6){err.textContent='Combination B needs exactly 6 numbers.';return;}
+  const lastN=parseInt(document.getElementById('cmp-last-n').value)||50;
+  err.textContent='Comparing…';
+
+  const params=new URLSearchParams({
+    nums1:[...cmpState.a.nums].sort((a,b)=>a-b).join(','),
+    strong1:cmpState.a.strong??'',
+    nums2:[...cmpState.b.nums].sort((a,b)=>a-b).join(','),
+    strong2:cmpState.b.strong??'',
+    last_n:lastN,
+  });
+
+  const data=await fetch('/api/compare?'+params).then(r=>r.json());
+  err.textContent='';
+  if (data.error){err.textContent=data.error;return;}
+
+  const c1=data.combo1, c2=data.combo2;
+  const wins1=c1.draws.filter(d=>d.tier).length;
+  const wins2=c2.draws.filter(d=>d.tier).length;
+
+  document.getElementById('score-a-nums').textContent=c1.numbers.join(', ')+(c1.strong?' + strong '+c1.strong:'');
+  document.getElementById('score-b-nums').textContent=c2.numbers.join(', ')+(c2.strong?' + strong '+c2.strong:'');
+  document.getElementById('score-a-prize').textContent='₪'+c1.total_prize.toLocaleString();
+  document.getElementById('score-b-prize').textContent='₪'+c2.total_prize.toLocaleString();
+  document.getElementById('score-a-wins').textContent=wins1+' winning draw'+(wins1!==1?'s':'');
+  document.getElementById('score-b-wins').textContent=wins2+' winning draw'+(wins2!==1?'s':'');
+
+  const sa=document.getElementById('score-a'), sb=document.getElementById('score-b');
+  sa.classList.remove('winner','winner-b'); sb.classList.remove('winner','winner-b');
+  if (data.winner===1){
+    sa.classList.add('winner');
+    document.getElementById('score-trophy').textContent='🏆';
+    document.getElementById('score-label').innerHTML='<span style="color:#f6ad55;font-weight:700;">A wins</span>';
+  } else if (data.winner===2){
+    sb.classList.add('winner-b');
+    document.getElementById('score-trophy').textContent='🏆';
+    document.getElementById('score-label').innerHTML='<span style="color:#63b3ed;font-weight:700;">B wins</span>';
+  } else {
+    document.getElementById('score-trophy').textContent='🤝';
+    document.getElementById('score-label').innerHTML='<span style="color:#718096;">Tie</span>';
+  }
+
+  const setA=new Set(c1.numbers), setB=new Set(c2.numbers);
+  function cmpBallHtml(nums, strong) {
+    let h='';
+    nums.forEach(n=>{
+      const inA=setA.has(n), inB=setB.has(n);
+      let s='';
+      if (inA&&inB) s='background:linear-gradient(to right,#f6ad55 50%,#63b3ed 50%);color:#0f1117;';
+      else if (inA) s='background:#f6ad55;color:#0f1117;';
+      else if (inB) s='background:#63b3ed;color:#0f1117;';
+      h+=`<span class="ball" style="${s}">${n}</span>`;
+    });
+    if (strong!=null){
+      const inA=c1.strong!=null&&c1.strong===strong;
+      const inB=c2.strong!=null&&c2.strong===strong;
+      let s='background:#2d7d4f;color:#68d391;';
+      if (inA&&inB) s='background:linear-gradient(to right,#f6ad55 50%,#63b3ed 50%);color:#0f1117;';
+      else if (inA) s='background:#38a169;color:#fff;';
+      else if (inB) s='background:#2b6cb0;color:#fff;';
+      h+=`<span class="ball" style="${s}">${strong}</span>`;
+    }
+    return h;
+  }
+
+  const tb=document.getElementById('compare-tbody'); tb.innerHTML='';
+  c1.draws.forEach((d1,i)=>{
+    const d2=c2.draws[i];
+    tb.innerHTML+=`<tr>
+      <td class="muted">${d1.id}</td><td>${d1.date}</td>
+      <td style="white-space:nowrap">${cmpBallHtml(d1.numbers,d1.strong)}</td>
+      <td>${tierTag(d1.tier)}</td>
+      <td class="${d1.prize?'prize-val':'muted'}">${d1.prize?'₪'+d1.prize.toLocaleString():'—'}</td>
+      <td>${tierTag(d2.tier)}</td>
+      <td class="${d2.prize?'prize-val':'muted'}">${d2.prize?'₪'+d2.prize.toLocaleString():'—'}</td>
+    </tr>`;
+  });
+
+  document.getElementById('compare-table-wrap').style.display='none';
+  document.getElementById('compare-toggle').textContent='Show draw-by-draw breakdown ▼';
+  document.getElementById('compare-results').style.display='block';
+}
+
 document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElementById('tab-date').style.display!=='none') searchDate(); });
 // Auto-switch to combo tab if hash present
 if (location.hash==='#combo') switchTab('combo');
+if (location.hash==='#compare') switchTab('compare');
 buildPickers();
 buildMonthList();
+buildComparePickers();
 </script>
 {% endblock %}

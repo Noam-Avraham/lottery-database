@@ -77,6 +77,7 @@
     <div class="hstat"><div class="hstat-val">1–37</div><div class="hstat-label">Main Number Pool</div></div>
     <div class="hstat"><div class="hstat-val">1–7</div><div class="hstat-label">Strong Number Pool</div></div>
     <div class="hstat"><div class="hstat-val">38,556</div><div class="hstat-label">Prize Tier Records</div></div>
+    <div class="hstat"><div class="hstat-val">{{ total_prizes_fmt }}</div><div class="hstat-label">Total Prizes Paid (NIS)</div></div>
   </div>
 
   <div style="margin-top:2.2rem;">
@@ -192,13 +193,15 @@
       <div class="field-row"><span class="field-name">first_prize_lotto</span><span class="field-type">int</span><span class="field-desc">Jackpot (NIS)</span></div>
       <div class="field-row"><span class="field-name">first_prize_double</span><span class="field-type">int</span><span class="field-desc">Double Lotto jackpot</span></div>
       <div class="field-row"><span class="field-name">total_prizes</span><span class="field-type">int</span><span class="field-desc">Total prize pool</span></div>
+      <div class="field-row"><span class="field-name">scraped_at</span><span class="field-type">text</span><span class="field-desc">ISO timestamp of scrape</span></div>
     </div>
 
     <div class="schema-card">
       <h3>prize_tiers</h3>
+      <div class="field-row"><span class="field-name">id</span><span class="field-type">int PK</span><span class="field-desc">Auto-increment row ID</span></div>
       <div class="field-row"><span class="field-name">lottery_id</span><span class="field-type">int FK</span><span class="field-desc">→ lotteries.id</span></div>
       <div class="field-row"><span class="field-name">game_type</span><span class="field-type">text</span><span class="field-desc">regular / double</span></div>
-      <div class="field-row"><span class="field-name">tier</span><span class="field-type">text</span><span class="field-desc">6+חזק, 6, 5+חזק …</span></div>
+      <div class="field-row"><span class="field-name">tier</span><span class="field-type">text</span><span class="field-desc">6+1, 6, 5+1 …</span></div>
       <div class="field-row"><span class="field-name">winners</span><span class="field-type">int</span><span class="field-desc">Number of winners</span></div>
       <div class="field-row"><span class="field-name">prize</span><span class="field-type">int</span><span class="field-desc">Prize per winner (NIS)</span></div>
       <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #2d3748;">
