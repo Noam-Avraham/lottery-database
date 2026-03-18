@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Israel Lotto Archive{% endblock %}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+    /* ── Nav ── */
+    nav {
+      background: #13151f;
+      border-bottom: 1px solid #2d3748;
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      height: 56px;
+      gap: 0;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { font-size: 1.1rem; font-weight: 800; color: #f6ad55; margin-right: 2.5rem; text-decoration: none; }
+    .nav-logo span { color: #e2e8f0; font-weight: 400; font-size: 0.85rem; margin-left: 0.5rem; }
+    .nav-link {
+      padding: 0 1.1rem;
+      height: 56px;
+      display: inline-flex; align-items: center;
+      color: #718096; text-decoration: none;
+      font-size: 0.9rem; font-weight: 500;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { color: #e2e8f0; }
+    .nav-link.active { color: #f6ad55; border-bottom-color: #f6ad55; }
+
+    /* ── Shared utils ── */
+    .container { max-width: 980px; margin: 0 auto; padding: 2.5rem 2rem; }
+    .badge { background: #2d3748; padding: 0.2rem 0.7rem; border-radius: 99px; font-size: 0.78rem; color: #a0aec0; }
+    .btn { padding: 0.65rem 1.6rem; border: none; border-radius: 8px; font-size: 0.92rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary   { background: #f6ad55; color: #0f1117; }
+    .btn-secondary { background: #2d3748; color: #e2e8f0; }
+    .error-msg { color: #fc8181; font-size: 0.9rem; margin-top: 0.8rem; }
+
+    .ball {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border-radius: 50%;
+      font-size: 0.78rem; font-weight: 700;
+      background: #2d3748; color: #e2e8f0; margin: 1px;
+    }
+    .ball.hit         { background: #f6ad55; color: #0f1117; }
+    .ball.strong      { background: #2d7d4f; color: #68d391; border: 2px solid #2d7d4f; }
+    .ball.strong-hit  { background: #38a169; color: white; }
+
+    {% block extra_styles %}{% endblock %}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">🎱 Lotto<span>Archive</span></a>
+  <a class="nav-link {% if active=='home' %}active{% endif %}"   href="/">Home</a>
+  <a class="nav-link {% if active=='search' %}active{% endif %}" href="/search">Search</a>
+  <a class="nav-link {% if active=='facts' %}active{% endif %}"  href="/facts">Interesting Facts</a>
+</nav>
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

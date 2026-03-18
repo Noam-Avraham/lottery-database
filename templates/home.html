@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% set active = "home" %}
+{% block title %}Israel Lotto Archive — Home{% endblock %}
+
+{% block extra_styles %}
+.hero {
+  background: linear-gradient(135deg, #1a1d2e 0%, #16213e 60%, #1a2744 100%);
+  border-bottom: 1px solid #2d3748;
+  padding: 4rem 2rem 3rem;
+  text-align: center;
+}
+.hero h1 { font-size: 2.6rem; font-weight: 800; color: #f6ad55; margin-bottom: 0.6rem; }
+.hero p  { color: #a0aec0; font-size: 1.05rem; max-width: 580px; margin: 0 auto 2rem; line-height: 1.7; }
+.hero-stats { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
+.hstat { text-align: center; }
+.hstat-val  { font-size: 2rem; font-weight: 800; color: #f6ad55; }
+.hstat-label{ font-size: 0.82rem; color: #718096; margin-top: 0.1rem; }
+
+.section { max-width: 980px; margin: 0 auto; padding: 3rem 2rem; }
+.section-title { font-size: 1.35rem; font-weight: 700; color: #e2e8f0; margin-bottom: 0.4rem; }
+.section-sub   { color: #718096; font-size: 0.9rem; margin-bottom: 2rem; }
+.divider { border: none; border-top: 1px solid #2d3748; margin: 0; }
+
+/* Feature cards */
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+.feat-card {
+  background: #1a1d2e; border: 1px solid #2d3748; border-radius: 14px;
+  padding: 1.8rem; text-decoration: none; color: inherit;
+  transition: border-color 0.2s, transform 0.15s;
+  display: block;
+}
+.feat-card:hover { border-color: #f6ad55; transform: translateY(-2px); }
+.feat-icon  { font-size: 2.2rem; margin-bottom: 1rem; }
+.feat-title { font-size: 1.05rem; font-weight: 700; color: #f6ad55; margin-bottom: 0.5rem; }
+.feat-desc  { color: #a0aec0; font-size: 0.87rem; line-height: 1.6; }
+
+/* DB schema */
+.schema-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+.schema-card {
+  background: #1a1d2e; border: 1px solid #2d3748; border-radius: 12px; padding: 1.5rem;
+}
+.schema-card h3 { font-size: 0.95rem; color: #63b3ed; font-family: monospace; margin-bottom: 1rem; }
+.field-row { display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 0.4rem 0; border-bottom: 1px solid #1e2233; font-size: 0.83rem; }
+.field-row:last-child { border-bottom: none; }
+.field-name { color: #f6ad55; font-family: monospace; }
+.field-type { color: #718096; font-size: 0.75rem; text-transform: uppercase; margin: 0 0.5rem; }
+.field-desc { color: #a0aec0; font-size: 0.8rem; text-align: right; }
+
+/* Timeline */
+.timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
+.timeline::before { content:''; position:absolute; left:16px; top:0; bottom:0; width:2px; background:#2d3748; }
+.tl-item { display: flex; gap: 1.2rem; padding: 0.9rem 0; position: relative; }
+.tl-dot {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; position: relative; z-index: 1;
+}
+.tl-dot.excluded { background: #742a2a; color: #fc8181; border: 2px solid #742a2a; }
+.tl-dot.kept     { background: #22543d; color: #68d391; border: 2px solid #276749; }
+.tl-body { padding-top: 0.3rem; }
+.tl-title { font-size: 0.92rem; font-weight: 600; color: #e2e8f0; }
+.tl-sub   { font-size: 0.8rem; color: #718096; margin-top: 0.2rem; }
+.tl-tag { display: inline-block; font-size: 0.72rem; padding: 0.1rem 0.5rem;
+  border-radius: 4px; margin-top: 0.3rem; font-weight: 600; }
+.tl-tag.excl { background: #742a2a; color: #fc8181; }
+.tl-tag.kept { background: #22543d; color: #68d391; }
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1>🎱 Israel Lotto Archive</h1>
+  <p>A complete historical database of Mifal HaPais lottery draws — scraped directly from pais.co.il, cleaned, and ready to explore.</p>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-val">1,672</div><div class="hstat-label">Lottery Draws</div></div>
+    <div class="hstat"><div class="hstat-val">15 yrs</div><div class="hstat-label">March 2011 → 2026</div></div>
+    <div class="hstat"><div class="hstat-val">1–37</div><div class="hstat-label">Main Number Pool</div></div>
+    <div class="hstat"><div class="hstat-val">1–7</div><div class="hstat-label">Strong Number Pool</div></div>
+    <div class="hstat"><div class="hstat-val">38,556</div><div class="hstat-label">Prize Tier Records</div></div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<div class="section">
+  <div class="section-title">What can you do here?</div>
+  <div class="section-sub">Three tools to explore the data</div>
+  <div class="features">
+
+    <a class="feat-card" href="/search#date">
+      <div class="feat-icon">🗓</div>
+      <div class="feat-title">Search by Date</div>
+      <div class="feat-desc">
+        Enter any day and month to find every draw that happened on that calendar date across all years.
+        See number frequency stats and a full draw list.
+      </div>
+    </a>
+
+    <a class="feat-card" href="/search#combo">
+      <div class="feat-icon">🎰</div>
+      <div class="feat-title">Check a Combination</div>
+      <div class="feat-desc">
+        Pick up to 6 main numbers and an optional strong number.
+        Find every historical draw where those numbers came up and see exactly what prize you would have won.
+      </div>
+    </a>
+
+    <a class="feat-card" href="/facts">
+      <div class="feat-icon">📊</div>
+      <div class="feat-title">Interesting Facts</div>
+      <div class="feat-desc">
+        Hot and cold numbers, most common pairs, jackpot records, coverage statistics,
+        frequency heatmaps, and more visual insights into the data.
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<div class="section">
+  <div class="section-title">About the Database</div>
+  <div class="section-sub">Only the modern format — consistent and comparable data</div>
+
+  <p style="color:#a0aec0; font-size:0.9rem; line-height:1.8; margin-bottom:2rem; max-width:700px;">
+    The Israeli Lotto changed its format several times over the years. To ensure all draws in the database
+    use the same rules, only draws from <strong style="color:#e2e8f0">March 2011 onwards</strong> are included —
+    when the pool became 1–37 main numbers and 1–7 strong number, and has remained that way ever since.
+  </p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot excluded">✕</div>
+      <div class="tl-body">
+        <div class="tl-title">1999 – March 2004 &nbsp; <span class="tl-tag excl">Excluded</span></div>
+        <div class="tl-sub">Main pool: 1–49 &nbsp;·&nbsp; ~429 draws</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot excluded">✕</div>
+      <div class="tl-body">
+        <div class="tl-title">March 2004 – Feb 2009 &nbsp; <span class="tl-tag excl">Excluded</span></div>
+        <div class="tl-sub">Main pool: 1–34 &nbsp;·&nbsp; Strong: 1–10 &nbsp;·&nbsp; ~549 draws</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot excluded">✕</div>
+      <div class="tl-body">
+        <div class="tl-title">Feb 2009 – March 2011 &nbsp; <span class="tl-tag excl">Excluded</span></div>
+        <div class="tl-sub">Main pool: 1–37 &nbsp;·&nbsp; Strong: 1–8 (transitional) &nbsp;·&nbsp; ~221 draws</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot kept">✓</div>
+      <div class="tl-body">
+        <div class="tl-title">March 2011 → Present &nbsp; <span class="tl-tag kept">In Database</span></div>
+        <div class="tl-sub">Main pool: 1–37 &nbsp;·&nbsp; Strong: 1–7 &nbsp;·&nbsp; <strong style="color:#68d391">1,672 draws</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<div class="section">
+  <div class="section-title">Database Schema</div>
+  <div class="section-sub">Two tables — lotteries and prize tier distribution</div>
+  <div class="schema-grid">
+
+    <div class="schema-card">
+      <h3>lotteries</h3>
+      <div class="field-row"><span class="field-name">id</span><span class="field-type">int PK</span><span class="field-desc">Draw number</span></div>
+      <div class="field-row"><span class="field-name">draw_date</span><span class="field-type">text</span><span class="field-desc">DD/MM/YYYY</span></div>
+      <div class="field-row"><span class="field-name">draw_time</span><span class="field-type">text</span><span class="field-desc">HH:MM</span></div>
+      <div class="field-row"><span class="field-name">num1 – num6</span><span class="field-type">int</span><span class="field-desc">6 main numbers (1–37)</span></div>
+      <div class="field-row"><span class="field-name">strong_number</span><span class="field-type">int</span><span class="field-desc">Bonus number (1–7)</span></div>
+      <div class="field-row"><span class="field-name">first_prize_lotto</span><span class="field-type">int</span><span class="field-desc">Jackpot (NIS)</span></div>
+      <div class="field-row"><span class="field-name">first_prize_double</span><span class="field-type">int</span><span class="field-desc">Double Lotto jackpot</span></div>
+      <div class="field-row"><span class="field-name">total_prizes</span><span class="field-type">int</span><span class="field-desc">Total prize pool</span></div>
+    </div>
+
+    <div class="schema-card">
+      <h3>prize_tiers</h3>
+      <div class="field-row"><span class="field-name">lottery_id</span><span class="field-type">int FK</span><span class="field-desc">→ lotteries.id</span></div>
+      <div class="field-row"><span class="field-name">game_type</span><span class="field-type">text</span><span class="field-desc">regular / double</span></div>
+      <div class="field-row"><span class="field-name">tier</span><span class="field-type">text</span><span class="field-desc">6+חזק, 6, 5+חזק …</span></div>
+      <div class="field-row"><span class="field-name">winners</span><span class="field-type">int</span><span class="field-desc">Number of winners</span></div>
+      <div class="field-row"><span class="field-name">prize</span><span class="field-type">int</span><span class="field-desc">Prize per winner (NIS)</span></div>
+      <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #2d3748;">
+        <p style="font-size:0.8rem;color:#718096;">
+          Each draw has up to 16 tier rows: 8 tiers × 2 game types (regular + double).<br/>
+          Total: <strong style="color:#a0aec0">38,556 rows</strong>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="text-align:center; padding:2rem 1rem 3rem; border-top:1px solid #2d3748; margin-top:0;">
+  <a href="https://github.com/Noam-Avraham/lottery-database"
+     target="_blank" rel="noopener"
+     style="display:inline-flex;align-items:center;gap:0.5rem;color:#a0aec0;text-decoration:none;font-size:0.88rem;transition:color 0.15s;"
+     onmouseover="this.style.color='#f6ad55'" onmouseout="this.style.color='#a0aec0'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577
+               0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756
+               -1.09-.745.083-.729.083-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998
+               .108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22
+               -.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405
+               1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176
+               .765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22
+               0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12
+               c0-6.63-5.37-12-12-12z"/>
+    </svg>
+    View source on GitHub
+  </a>
+</div>
+{% endblock %}

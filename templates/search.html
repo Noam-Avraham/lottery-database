@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% set active = "search" %}
+{% block title %}Search — Israel Lotto Archive{% endblock %}
+
+{% block extra_styles %}
+.page-header { background: #1a1d2e; border-bottom: 1px solid #2d3748; padding: 1.5rem 2rem; }
+.page-header h1 { font-size: 1.3rem; font-weight: 700; color: #f6ad55; }
+.page-header p  { color: #718096; font-size: 0.88rem; margin-top: 0.25rem; }
+
+.tabs { display:flex; background:#13151f; border-bottom:1px solid #2d3748; padding:0 2rem; }
+.tab-btn {
+  padding:0.9rem 1.8rem; background:none; border:none;
+  border-bottom:3px solid transparent; color:#718096;
+  cursor:pointer; font-size:0.92rem; font-weight:500; transition:all 0.2s;
+}
+.tab-btn.active { color:#f6ad55; border-bottom-color:#f6ad55; }
+.tab-btn:hover:not(.active) { color:#e2e8f0; }
+
+.search-card {
+  background:#1a1d2e; border:1px solid #2d3748; border-radius:12px;
+  padding:1.8rem; margin-bottom:2rem;
+}
+.search-card h2 { font-size:1.05rem; color:#f6ad55; margin-bottom:0.35rem; }
+.search-card p  { color:#718096; font-size:0.86rem; margin-bottom:1.2rem; }
+
+.input-row { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end; }
+.field { display:flex; flex-direction:column; gap:0.3rem; }
+.field label { font-size:0.78rem; color:#a0aec0; text-transform:uppercase; letter-spacing:.05em; }
+.field input {
+  background:#0f1117; border:1px solid #4a5568; border-radius:8px;
+  color:#e2e8f0; padding:0.6rem 0.9rem; font-size:0.92rem; width:90px;
+}
+.field input:focus { outline:none; border-color:#f6ad55; }
+
+/* Number pickers */
+.picker-legend { display:flex; gap:1.5rem; margin-bottom:0.6rem; font-size:0.8rem; color:#718096; }
+.legend-dot { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:4px; vertical-align:middle; }
+.num-grid { display:flex; flex-wrap:wrap; gap:0.4rem; margin:0.6rem 0 1rem; max-width:560px; }
+.num-btn {
+  width:38px; height:38px; border-radius:50%; border:2px solid #4a5568;
+  background:#0f1117; color:#a0aec0; font-size:0.82rem; font-weight:600;
+  cursor:pointer; transition:all 0.15s;
+}
+.num-btn:hover { border-color:#f6ad55; color:#f6ad55; }
+.num-btn.selected { background:#f6ad55; border-color:#f6ad55; color:#0f1117; }
+.strong-grid { display:flex; gap:0.4rem; margin-bottom:1rem; }
+.strong-btn {
+  width:38px; height:38px; border-radius:50%; border:2px solid #2d7d4f;
+  background:#0f1117; color:#68d391; font-size:0.82rem; font-weight:600; cursor:pointer; transition:all .15s;
+}
+.strong-btn:hover,.strong-btn.strong-selected { background:#38a169; border-color:#38a169; color:white; }
+
+/* Results */
+.result-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+.result-header h3 { font-size:1rem; color:#e2e8f0; }
+.freq-bar { display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:1.2rem; }
+.freq-pill {
+  display:flex; flex-direction:column; align-items:center;
+  background:#1e2233; border:1px solid #2d3748; border-radius:8px;
+  padding:0.3rem 0.55rem; min-width:42px;
+}
+.freq-pill .fn { font-size:0.88rem; font-weight:700; color:#f6ad55; }
+.freq-pill .fc { font-size:0.68rem; color:#718096; }
+.tier-summary { display:flex; flex-wrap:wrap; gap:0.6rem; margin-bottom:1.2rem; }
+.tier-pill { background:#1a2744; border:1px solid #2d4a7a; border-radius:8px; padding:0.45rem 0.9rem; text-align:center; }
+.tier-pill .tc { font-size:1.1rem; font-weight:700; color:#63b3ed; }
+.tier-pill .tp { font-size:0.76rem; color:#90cdf4; }
+.toggle-link { color:#63b3ed; background:none; border:none; cursor:pointer; font-size:0.83rem; padding:0.4rem 0; text-decoration:underline; }
+.draw-table-wrap { overflow-x:auto; margin-top:0.8rem; }
+table { width:100%; border-collapse:collapse; font-size:0.86rem; }
+thead th { background:#1e2233; padding:0.65rem 0.9rem; text-align:left; color:#a0aec0; font-weight:600; border-bottom:1px solid #2d3748; }
+tbody tr { border-bottom:1px solid #1e2233; }
+tbody tr:hover { background:#1e2233; }
+tbody td { padding:0.6rem 0.9rem; color:#e2e8f0; }
+tbody td.muted { color:#718096; }
+.tier-tag { display:inline-block; padding:0.2rem 0.5rem; border-radius:5px; font-size:0.76rem; font-weight:600; }
+.tier-tag.win  { background:#744210; color:#f6ad55; }
+.tier-tag.big  { background:#1a365d; color:#63b3ed; }
+.tier-tag.none { background:#1a1d2e; color:#4a5568; }
+.prize-val { color:#68d391; font-weight:600; }
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Search the Archive</h1>
+  <p>Look up draws by date, or check how a number combination performed historically.</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" id="tab-date-btn" onclick="switchTab('date')">🗓 Search by Date</button>
+  <button class="tab-btn"        id="tab-combo-btn" onclick="switchTab('combo')">🎰 Check Combination</button>
+</div>
+
+<div class="container" style="max-width:960px;">
+
+  <!-- Date tab -->
+  <div id="tab-date" class="tab-panel active" style="display:block;">
+    <div class="search-card">
+      <h2>Search by Day &amp; Month</h2>
+      <p>Find every draw on a specific calendar date across all years (2011–2026).</p>
+      <div class="input-row">
+        <div class="field"><label>Day</label><input id="date-day" type="number" min="1" max="31" placeholder="e.g. 14"/></div>
+        <div class="field"><label>Month</label><input id="date-month" type="number" min="1" max="12" placeholder="e.g. 3"/></div>
+        <button class="btn btn-primary" onclick="searchDate()">Search</button>
+      </div>
+      <div id="date-error" class="error-msg"></div>
+    </div>
+    <div id="date-results" style="display:none;">
+      <div class="result-header">
+        <h3 id="date-title"></h3><span class="badge" id="date-count"></span>
+      </div>
+      <p style="font-size:0.8rem;color:#718096;margin-bottom:0.6rem;">Most frequent numbers on this date:</p>
+      <div id="date-freq" class="freq-bar"></div>
+      <button class="toggle-link" id="date-toggle" onclick="toggleTable('date')">Show full draw list ▼</button>
+      <div id="date-table-wrap" class="draw-table-wrap" style="display:none;">
+        <table><thead><tr><th>#</th><th>Date</th><th>Numbers</th><th>Strong</th><th>Jackpot (NIS)</th></tr></thead>
+        <tbody id="date-tbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Combo tab -->
+  <div id="tab-combo" class="tab-panel" style="display:none;">
+    <div class="search-card">
+      <h2>Check Your Combination</h2>
+      <p>Pick up to 6 main numbers (1–37) and an optional strong number (1–7) to see all historical matches and prizes.</p>
+      <div class="picker-legend">
+        <span><span class="legend-dot" style="background:#f6ad55"></span>Main selected</span>
+        <span><span class="legend-dot" style="background:#38a169"></span>Strong number</span>
+      </div>
+      <p style="font-size:0.78rem;color:#718096;margin-bottom:0.4rem;">Main numbers (1–6):</p>
+      <div class="num-grid" id="main-grid"></div>
+      <p style="font-size:0.78rem;color:#718096;margin-bottom:0.4rem;">Strong number (optional):</p>
+      <div class="strong-grid" id="strong-grid"></div>
+      <div class="input-row" style="margin-top:0.5rem;">
+        <button class="btn btn-primary" onclick="searchCombo()">Search</button>
+        <button class="btn btn-secondary" onclick="clearCombo()">Clear</button>
+      </div>
+      <div id="combo-error" class="error-msg"></div>
+    </div>
+    <div id="combo-results" style="display:none;">
+      <div class="result-header">
+        <h3 id="combo-title"></h3><span class="badge" id="combo-count"></span>
+      </div>
+      <p style="font-size:0.8rem;color:#718096;margin-bottom:0.6rem;">Prize tiers won:</p>
+      <div id="combo-tiers" class="tier-summary"></div>
+      <button class="toggle-link" id="combo-toggle" onclick="toggleTable('combo')">Show all draws ▼</button>
+      <div id="combo-table-wrap" class="draw-table-wrap" style="display:none;">
+        <table><thead><tr><th>#</th><th>Date</th><th>Drawn Numbers</th><th>Strong</th><th>Matches</th><th>Tier</th><th>Prize (NIS)</th></tr></thead>
+        <tbody id="combo-tbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(name) {
+  ['date','combo'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===name ? 'block' : 'none';
+    document.getElementById('tab-'+t+'-btn').classList.toggle('active', t===name);
+  });
+}
+
+let selectedNums = new Set(), selectedStrong = null;
+
+function buildPickers() {
+  const mg = document.getElementById('main-grid');
+  for (let n=1;n<=37;n++) {
+    const b=document.createElement('button'); b.className='num-btn'; b.textContent=n; b.dataset.n=n;
+    b.onclick=()=>toggleMain(n,b); mg.appendChild(b);
+  }
+  const sg=document.getElementById('strong-grid');
+  for (let n=1;n<=7;n++) {
+    const b=document.createElement('button'); b.className='strong-btn'; b.textContent=n; b.dataset.n=n;
+    b.onclick=()=>toggleStrong(n,b); sg.appendChild(b);
+  }
+}
+function toggleMain(n,btn) {
+  if (selectedNums.has(n)) { selectedNums.delete(n); btn.classList.remove('selected'); }
+  else if (selectedNums.size<6) { selectedNums.add(n); btn.classList.add('selected'); }
+}
+function toggleStrong(n,btn) {
+  if (selectedStrong===n) { selectedStrong=null; btn.classList.remove('strong-selected'); }
+  else { document.querySelectorAll('.strong-btn').forEach(b=>b.classList.remove('strong-selected')); selectedStrong=n; btn.classList.add('strong-selected'); }
+}
+function clearCombo() {
+  selectedNums.clear(); selectedStrong=null;
+  document.querySelectorAll('.num-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.strong-btn').forEach(b=>b.classList.remove('strong-selected'));
+  document.getElementById('combo-results').style.display='none';
+  document.getElementById('combo-error').textContent='';
+}
+function fmt(n) { return n!=null ? n.toLocaleString() : '—'; }
+function ballHtml(nums, hitNums, strong, strongHit) {
+  const hitSet=new Set(hitNums||[]);
+  let h=''; nums.forEach(n=>{ h+=`<span class="ball ${hitSet.has(n)?'hit':''}">${n}</span>`; });
+  if (strong!=null) h+=`<span class="ball ${strongHit?'strong-hit':'strong'}">${strong}</span>`;
+  return h;
+}
+function tierTag(tier) {
+  if (!tier) return `<span class="tier-tag none">—</span>`;
+  const big=tier.startsWith('6')||tier.startsWith('5');
+  return `<span class="tier-tag ${big?'big':'win'}">${tier}</span>`;
+}
+function toggleTable(tab) {
+  const w=document.getElementById(tab+'-table-wrap'), t=document.getElementById(tab+'-toggle'), h=w.style.display==='none';
+  w.style.display=h?'block':'none'; t.textContent=h?'Hide draw list ▲':'Show full draw list ▼';
+}
+
+async function searchDate() {
+  const day=document.getElementById('date-day').value, month=document.getElementById('date-month').value;
+  const err=document.getElementById('date-error'); err.textContent='';
+  if (!day||!month){err.textContent='Enter both day and month.';return;}
+  err.textContent='Loading…';
+  const data=await fetch(`/api/date?day=${day}&month=${month}`).then(r=>r.json());
+  err.textContent='';
+  if (data.error){err.textContent=data.error;return;}
+  const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('date-title').textContent=`${parseInt(day)} ${M[parseInt(month)]}`;
+  document.getElementById('date-count').textContent=`${data.total} draws`;
+  const f=document.getElementById('date-freq'); f.innerHTML='';
+  Object.entries(data.number_frequency).slice(0,15).forEach(([n,c])=>{
+    f.innerHTML+=`<div class="freq-pill"><span class="fn">${n}</span><span class="fc">×${c}</span></div>`;
+  });
+  const tb=document.getElementById('date-tbody'); tb.innerHTML='';
+  data.draws.forEach(d=>{
+    tb.innerHTML+=`<tr><td class="muted">${d.id}</td><td>${d.date}</td><td>${ballHtml(d.numbers,[],null,false)}</td><td>${ballHtml([],[],d.strong,false)}</td><td>${fmt(d.jackpot)}</td></tr>`;
+  });
+  document.getElementById('date-table-wrap').style.display='none';
+  document.getElementById('date-toggle').textContent='Show full draw list ▼';
+  document.getElementById('date-results').style.display='block';
+}
+
+async function searchCombo() {
+  const err=document.getElementById('combo-error'); err.textContent='';
+  if (!selectedNums.size){err.textContent='Select at least one number.';return;}
+  err.textContent='Loading…';
+  const data=await fetch(`/api/combination?nums=${[...selectedNums].join(',')}&strong=${selectedStrong??''}`).then(r=>r.json());
+  err.textContent='';
+  if (data.error){err.textContent=data.error;return;}
+  const nl=[...selectedNums].sort((a,b)=>a-b).join(', ');
+  document.getElementById('combo-title').textContent=`${nl}${selectedStrong?' + Strong '+selectedStrong:''}`;
+  document.getElementById('combo-count').textContent=`${data.total} draws matched`;
+  const te=document.getElementById('combo-tiers'); te.innerHTML='';
+  ['6 + חזק','6','5 + חזק','5','4 + חזק','4','3 + חזק','3'].forEach(t=>{
+    if (data.tier_summary[t]) te.innerHTML+=`<div class="tier-pill"><div class="tc">${data.tier_summary[t]}×</div><div class="tp">${t}</div></div>`;
+  });
+  if (!te.innerHTML) te.innerHTML=`<span style="color:#718096;font-size:0.86rem;">No prizes in any matched draw.</span>`;
+  const tb=document.getElementById('combo-tbody'); tb.innerHTML='';
+  data.draws.forEach(d=>{
+    tb.innerHTML+=`<tr><td class="muted">${d.id}</td><td>${d.date}</td><td>${ballHtml(d.numbers,[...selectedNums],null,false)}</td><td>${ballHtml([],[],d.strong,d.strong_match)}</td><td>${d.matches}${d.strong_match?' +✓':''}</td><td>${tierTag(d.tier)}</td><td class="${d.prize?'prize-val':'muted'}">${fmt(d.prize)}</td></tr>`;
+  });
+  document.getElementById('combo-table-wrap').style.display='none';
+  document.getElementById('combo-toggle').textContent='Show all draws ▼';
+  document.getElementById('combo-results').style.display='block';
+}
+
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElementById('tab-date').style.display!=='none') searchDate(); });
+// Auto-switch to combo tab if hash present
+if (location.hash==='#combo') switchTab('combo');
+buildPickers();
+</script>
+{% endblock %}
