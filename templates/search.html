@@ -26,20 +26,37 @@
 .input-row { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end; }
 .field { display:flex; flex-direction:column; gap:0.3rem; }
 .field label { font-size:0.78rem; color:#a0aec0; text-transform:uppercase; letter-spacing:.05em; }
-/* Date dropdowns */
+/* Custom dropdowns (always open downward) */
 .date-selects { display:flex; gap:0.75rem; align-items:flex-end; flex-wrap:wrap; }
 .field { display:flex; flex-direction:column; gap:0.3rem; }
 .field label { font-size:0.78rem; color:#a0aec0; text-transform:uppercase; letter-spacing:.05em; }
-.field select {
+.cdd { position:relative; min-width:160px; }
+.cdd-trigger {
+  display:flex; align-items:center; justify-content:space-between; gap:0.5rem;
   background:#0f1117; border:1px solid #4a5568; border-radius:8px;
-  color:#e2e8f0; padding:0.6rem 0.9rem; font-size:0.92rem;
-  cursor:pointer; appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23718096' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 0.75rem center;
-  padding-right:2.2rem; min-width:140px;
+  color:#a0aec0; padding:0.6rem 0.9rem; font-size:0.92rem;
+  cursor:pointer; user-select:none; transition:border-color 0.15s;
 }
-.field select:focus { outline:none; border-color:#f6ad55; }
-.field select option { background:#1a1d2e; }
+.cdd-trigger.open, .cdd-trigger:hover { border-color:#f6ad55; }
+.cdd-trigger.has-value { color:#e2e8f0; }
+.cdd-trigger.disabled { opacity:0.4; cursor:not-allowed; pointer-events:none; }
+.cdd-arrow { font-size:0.7rem; color:#718096; transition:transform 0.15s; }
+.cdd-trigger.open .cdd-arrow { transform:rotate(180deg); }
+.cdd-list {
+  display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:200;
+  background:#1a1d2e; border:1px solid #4a5568; border-radius:8px;
+  max-height:220px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.5);
+}
+.cdd-list.open { display:block; }
+.cdd-list::-webkit-scrollbar { width:5px; }
+.cdd-list::-webkit-scrollbar-track { background:transparent; }
+.cdd-list::-webkit-scrollbar-thumb { background:#4a5568; border-radius:3px; }
+.cdd-item {
+  padding:0.55rem 0.9rem; font-size:0.9rem; color:#a0aec0;
+  cursor:pointer; transition:background 0.1s;
+}
+.cdd-item:hover { background:#2d3748; color:#e2e8f0; }
+.cdd-item.selected { color:#f6ad55; font-weight:600; }
 
 /* Number pickers */
 .picker-legend { display:flex; gap:1.5rem; margin-bottom:0.6rem; font-size:0.8rem; color:#718096; }
@@ -110,27 +127,23 @@ tbody td.muted { color:#718096; }
       <div class="date-selects">
         <div class="field">
           <label>Month</label>
-          <select id="date-month" onchange="updateDays()">
-            <option value="">— Select month —</option>
-            <option value="1">January</option>
-            <option value="2">February</option>
-            <option value="3">March</option>
-            <option value="4">April</option>
-            <option value="5">May</option>
-            <option value="6">June</option>
-            <option value="7">July</option>
-            <option value="8">August</option>
-            <option value="9">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
+          <div class="cdd" id="cdd-month">
+            <div class="cdd-trigger" id="cdd-month-trigger" onclick="toggleCdd('month')">
+              <span id="cdd-month-label">Select month</span>
+              <span class="cdd-arrow">▼</span>
+            </div>
+            <div class="cdd-list" id="cdd-month-list"></div>
+          </div>
         </div>
         <div class="field">
           <label>Day</label>
-          <select id="date-day" disabled>
-            <option value="">— Select day —</option>
-          </select>
+          <div class="cdd" id="cdd-day">
+            <div class="cdd-trigger disabled" id="cdd-day-trigger" onclick="toggleCdd('day')">
+              <span id="cdd-day-label">Select day</span>
+              <span class="cdd-arrow">▼</span>
+            </div>
+            <div class="cdd-list" id="cdd-day-list"></div>
+          </div>
         </div>
         <button class="btn btn-primary" onclick="searchDate()">Search</button>
       </div>
@@ -239,36 +252,79 @@ function toggleTable(tab) {
   w.style.display=h?'block':'none'; t.textContent=h?'Hide draw list ▲':'Show full draw list ▼';
 }
 
-// ── Date dropdowns ───────────────────────────────────────────────────────────
+// ── Custom dropdowns ─────────────────────────────────────────────────────────
 const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS_IN_MONTH = [31,29,31,30,31,30,31,31,30,31,30,31];
+let selMonth = null, selDay = null;
 
-function updateDays() {
-  const m = parseInt(document.getElementById('date-month').value);
-  const dayEl = document.getElementById('date-day');
-  const prev = dayEl.value;
-  dayEl.innerHTML = '<option value="">— Select day —</option>';
-  if (!m) { dayEl.disabled = true; return; }
-  const max = DAYS_IN_MONTH[m - 1];
-  for (let d = 1; d <= max; d++) {
-    const o = document.createElement('option');
-    o.value = d; o.textContent = d;
-    if (d === parseInt(prev)) o.selected = true;
-    dayEl.appendChild(o);
-  }
-  dayEl.disabled = false;
+function buildMonthList() {
+  const list = document.getElementById('cdd-month-list');
+  MONTHS_FULL.forEach((name, i) => {
+    const item = document.createElement('div');
+    item.className = 'cdd-item'; item.textContent = name;
+    item.onclick = () => pickMonth(i + 1, name);
+    list.appendChild(item);
+  });
 }
 
+function pickMonth(m, name) {
+  selMonth = m;
+  document.getElementById('cdd-month-label').textContent = name;
+  document.getElementById('cdd-month-trigger').classList.add('has-value');
+  closeCdd('month');
+  // reset day if out of range
+  if (selDay && selDay > DAYS_IN_MONTH[m - 1]) pickDay(null);
+  buildDayList();
+  document.getElementById('cdd-day-trigger').classList.remove('disabled');
+}
+
+function buildDayList() {
+  const list = document.getElementById('cdd-day-list'); list.innerHTML = '';
+  const max = DAYS_IN_MONTH[selMonth - 1];
+  for (let d = 1; d <= max; d++) {
+    const item = document.createElement('div');
+    item.className = 'cdd-item' + (d === selDay ? ' selected' : '');
+    item.textContent = d;
+    item.onclick = () => pickDay(d);
+    list.appendChild(item);
+  }
+}
+
+function pickDay(d) {
+  selDay = d;
+  document.getElementById('cdd-day-label').textContent = d ?? 'Select day';
+  const t = document.getElementById('cdd-day-trigger');
+  d ? t.classList.add('has-value') : t.classList.remove('has-value');
+  closeCdd('day');
+}
+
+function toggleCdd(name) {
+  const list = document.getElementById('cdd-'+name+'-list');
+  const trigger = document.getElementById('cdd-'+name+'-trigger');
+  const isOpen = list.classList.contains('open');
+  // close all first
+  ['month','day'].forEach(n => { document.getElementById('cdd-'+n+'-list').classList.remove('open'); document.getElementById('cdd-'+n+'-trigger').classList.remove('open'); });
+  if (!isOpen) { list.classList.add('open'); trigger.classList.add('open'); }
+}
+
+function closeCdd(name) {
+  document.getElementById('cdd-'+name+'-list').classList.remove('open');
+  document.getElementById('cdd-'+name+'-trigger').classList.remove('open');
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.cdd')) ['month','day'].forEach(n => closeCdd(n));
+});
+
 async function searchDate() {
-  const month = document.getElementById('date-month').value;
-  const day   = document.getElementById('date-day').value;
-  const err   = document.getElementById('date-error'); err.textContent = '';
-  if (!month || !day) { err.textContent = 'Select a month and a day.'; return; }
+  const err = document.getElementById('date-error'); err.textContent = '';
+  if (!selMonth || !selDay) { err.textContent = 'Select a month and a day.'; return; }
   err.textContent = 'Loading…';
-  const data = await fetch(`/api/date?day=${day}&month=${month}`).then(r => r.json());
+  const data = await fetch(`/api/date?day=${selDay}&month=${selMonth}`).then(r => r.json());
   err.textContent = '';
   if (data.error) { err.textContent = data.error; return; }
-  document.getElementById('date-title').textContent = `${day} ${MONTHS_FULL[month-1]}`;
+  document.getElementById('date-title').textContent = `${selDay} ${MONTHS_FULL[selMonth-1]}`;
   document.getElementById('date-count').textContent = `${data.total} draws`;
   const f = document.getElementById('date-freq'); f.innerHTML = '';
   Object.entries(data.number_frequency).slice(0, 15).forEach(([n, c]) => {
@@ -311,5 +367,6 @@ document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElement
 // Auto-switch to combo tab if hash present
 if (location.hash==='#combo') switchTab('combo');
 buildPickers();
+buildMonthList();
 </script>
 {% endblock %}
