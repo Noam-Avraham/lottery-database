@@ -26,11 +26,28 @@
 .input-row { display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end; }
 .field { display:flex; flex-direction:column; gap:0.3rem; }
 .field label { font-size:0.78rem; color:#a0aec0; text-transform:uppercase; letter-spacing:.05em; }
-.field input {
-  background:#0f1117; border:1px solid #4a5568; border-radius:8px;
-  color:#e2e8f0; padding:0.6rem 0.9rem; font-size:0.92rem; width:90px;
+/* Calendar picker */
+.cal-wrap { user-select:none; }
+.cal-months { display:grid; grid-template-columns:repeat(6,1fr); gap:0.35rem; margin-bottom:0.8rem; max-width:420px; }
+.cal-month {
+  padding:0.4rem 0; border-radius:6px; border:1px solid #4a5568;
+  background:#0f1117; color:#a0aec0; font-size:0.8rem; font-weight:600;
+  cursor:pointer; text-align:center; transition:all 0.15s;
 }
-.field input:focus { outline:none; border-color:#f6ad55; }
+.cal-month:hover { border-color:#f6ad55; color:#f6ad55; }
+.cal-month.sel  { background:#f6ad55; border-color:#f6ad55; color:#0f1117; }
+
+.cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:0.35rem; max-width:420px; }
+.cal-day {
+  aspect-ratio:1; border-radius:50%; border:1px solid #4a5568;
+  background:#0f1117; color:#a0aec0; font-size:0.82rem; font-weight:600;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all 0.15s;
+}
+.cal-day:hover { border-color:#f6ad55; color:#f6ad55; }
+.cal-day.sel   { background:#f6ad55; border-color:#f6ad55; color:#0f1117; }
+.cal-day.dim   { opacity:0.3; pointer-events:none; }
+.cal-label { font-size:0.76rem; color:#718096; text-transform:uppercase; letter-spacing:.05em; margin-bottom:0.45rem; }
 
 /* Number pickers */
 .picker-legend { display:flex; gap:1.5rem; margin-bottom:0.6rem; font-size:0.8rem; color:#718096; }
@@ -98,10 +115,14 @@ tbody td.muted { color:#718096; }
     <div class="search-card">
       <h2>Search by Day &amp; Month</h2>
       <p>Find every draw on a specific calendar date across all years (2011–2026).</p>
-      <div class="input-row">
-        <div class="field"><label>Day</label><input id="date-day" type="number" min="1" max="31" placeholder="e.g. 14"/></div>
-        <div class="field"><label>Month</label><input id="date-month" type="number" min="1" max="12" placeholder="e.g. 3"/></div>
-        <button class="btn btn-primary" onclick="searchDate()">Search</button>
+      <div class="cal-wrap">
+        <div class="cal-label">Month</div>
+        <div class="cal-months" id="cal-months"></div>
+        <div class="cal-label">Day</div>
+        <div class="cal-days" id="cal-days"></div>
+        <div style="margin-top:1rem;">
+          <button class="btn btn-primary" onclick="searchDate()">Search</button>
+        </div>
       </div>
       <div id="date-error" class="error-msg"></div>
     </div>
@@ -208,28 +229,69 @@ function toggleTable(tab) {
   w.style.display=h?'block':'none'; t.textContent=h?'Hide draw list ▲':'Show full draw list ▼';
 }
 
+// ── Calendar picker ──────────────────────────────────────────────────────────
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS_IN_MONTH = [31,29,31,30,31,30,31,31,30,31,30,31];
+let calMonth = null, calDay = null;
+
+function buildCalendar() {
+  const mg = document.getElementById('cal-months');
+  MONTHS.forEach((m, i) => {
+    const b = document.createElement('button');
+    b.className = 'cal-month'; b.textContent = m;
+    b.onclick = () => selectMonth(i + 1, b);
+    mg.appendChild(b);
+  });
+  buildDays();
+}
+
+function buildDays() {
+  const dg = document.getElementById('cal-days'); dg.innerHTML = '';
+  const max = calMonth ? DAYS_IN_MONTH[calMonth - 1] : 31;
+  for (let d = 1; d <= 31; d++) {
+    const b = document.createElement('button');
+    b.className = 'cal-day' + (d > max ? ' dim' : '') + (d === calDay ? ' sel' : '');
+    b.textContent = d;
+    b.onclick = () => selectDay(d, b);
+    dg.appendChild(b);
+  }
+}
+
+function selectMonth(m, btn) {
+  calMonth = m;
+  document.querySelectorAll('.cal-month').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  // clamp day if now invalid
+  if (calDay && calDay > DAYS_IN_MONTH[m - 1]) calDay = null;
+  buildDays();
+}
+
+function selectDay(d, btn) {
+  calDay = d;
+  document.querySelectorAll('.cal-day').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
 async function searchDate() {
-  const day=document.getElementById('date-day').value, month=document.getElementById('date-month').value;
-  const err=document.getElementById('date-error'); err.textContent='';
-  if (!day||!month){err.textContent='Enter both day and month.';return;}
-  err.textContent='Loading…';
-  const data=await fetch(`/api/date?day=${day}&month=${month}`).then(r=>r.json());
-  err.textContent='';
-  if (data.error){err.textContent=data.error;return;}
-  const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('date-title').textContent=`${parseInt(day)} ${M[parseInt(month)]}`;
-  document.getElementById('date-count').textContent=`${data.total} draws`;
-  const f=document.getElementById('date-freq'); f.innerHTML='';
-  Object.entries(data.number_frequency).slice(0,15).forEach(([n,c])=>{
-    f.innerHTML+=`<div class="freq-pill"><span class="fn">${n}</span><span class="fc">×${c}</span></div>`;
+  const err = document.getElementById('date-error'); err.textContent = '';
+  if (!calMonth || !calDay) { err.textContent = 'Select a month and a day.'; return; }
+  err.textContent = 'Loading…';
+  const data = await fetch(`/api/date?day=${calDay}&month=${calMonth}`).then(r => r.json());
+  err.textContent = '';
+  if (data.error) { err.textContent = data.error; return; }
+  document.getElementById('date-title').textContent = `${calDay} ${MONTHS[calMonth-1]}`;
+  document.getElementById('date-count').textContent = `${data.total} draws`;
+  const f = document.getElementById('date-freq'); f.innerHTML = '';
+  Object.entries(data.number_frequency).slice(0, 15).forEach(([n, c]) => {
+    f.innerHTML += `<div class="freq-pill"><span class="fn">${n}</span><span class="fc">×${c}</span></div>`;
   });
-  const tb=document.getElementById('date-tbody'); tb.innerHTML='';
-  data.draws.forEach(d=>{
-    tb.innerHTML+=`<tr><td class="muted">${d.id}</td><td>${d.date}</td><td>${ballHtml(d.numbers,[],null,false)}</td><td>${ballHtml([],[],d.strong,false)}</td><td>${fmt(d.jackpot)}</td></tr>`;
+  const tb = document.getElementById('date-tbody'); tb.innerHTML = '';
+  data.draws.forEach(d => {
+    tb.innerHTML += `<tr><td class="muted">${d.id}</td><td>${d.date}</td><td>${ballHtml(d.numbers,[],null,false)}</td><td>${ballHtml([],[],d.strong,false)}</td><td>${fmt(d.jackpot)}</td></tr>`;
   });
-  document.getElementById('date-table-wrap').style.display='none';
-  document.getElementById('date-toggle').textContent='Show full draw list ▼';
-  document.getElementById('date-results').style.display='block';
+  document.getElementById('date-table-wrap').style.display = 'none';
+  document.getElementById('date-toggle').textContent = 'Show full draw list ▼';
+  document.getElementById('date-results').style.display = 'block';
 }
 
 async function searchCombo() {
@@ -260,5 +322,6 @@ document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElement
 // Auto-switch to combo tab if hash present
 if (location.hash==='#combo') switchTab('combo');
 buildPickers();
+buildCalendar();
 </script>
 {% endblock %}
