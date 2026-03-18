@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, render_template, send_from_directory
 import sqlite3
+import random
 from pathlib import Path
 from collections import Counter
 from itertools import combinations
@@ -51,6 +52,10 @@ def search():
 @app.route("/facts")
 def facts():
     return render_template("facts.html")
+
+@app.route("/lucky")
+def lucky():
+    return render_template("lucky.html")
 
 @app.route("/images/<filename>")
 def serve_image(filename):
@@ -245,6 +250,49 @@ def get_facts():
         "hot":               hot,
         "cold":              cold,
         "avg_sum":           avg_sum,
+    })
+
+
+@app.route("/api/lucky-pick")
+def lucky_pick():
+    conn = get_db()
+    c    = conn.cursor()
+
+    rows = c.execute(
+        "SELECT num1,num2,num3,num4,num5,num6,strong_number FROM lotteries"
+    ).fetchall()
+    conn.close()
+
+    total = len(rows)
+
+    # Build frequency tables from real draw history
+    main_freq   = {n: 0 for n in range(1, 38)}
+    strong_freq = {n: 0 for n in range(1, 8)}
+    for r in rows:
+        for col in ("num1","num2","num3","num4","num5","num6"):
+            main_freq[r[col]] += 1
+        strong_freq[r["strong_number"]] += 1
+
+    # Weighted sampling without replacement for 6 unique main numbers
+    pool    = list(range(1, 38))
+    weights = [main_freq[n] for n in pool]
+    picked  = []
+    for _ in range(6):
+        chosen = random.choices(pool, weights=weights, k=1)[0]
+        idx = pool.index(chosen)
+        picked.append(chosen)
+        pool.pop(idx)
+        weights.pop(idx)
+    picked.sort()
+
+    # Weighted pick for strong number
+    strong_pool    = list(range(1, 8))
+    strong_weights = [strong_freq[n] for n in strong_pool]
+    strong         = random.choices(strong_pool, weights=strong_weights, k=1)[0]
+
+    return jsonify({
+        "numbers": picked,
+        "strong":  strong,
     })
 
 
