@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Israel Lotto Archive{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --clr-bg:          #f5f4ff;
+      --clr-surface:     #ffffff;
+      --clr-surface-2:   #f0effe;
+      --clr-border:      #e0dcff;
+      --clr-border-2:    #c8c2f5;
+
+      --clr-indigo-900:  #1a0e6e;
+      --clr-indigo-700:  #3b28cc;
+      --clr-indigo-500:  #5e4ae8;
+      --clr-indigo-400:  #7b6cf0;
+      --clr-indigo-200:  #c5beff;
+      --clr-indigo-100:  #ebe8ff;
+      --clr-indigo-50:   #f5f4ff;
+
+      /* sky blue / תכלת accent — replaces gold */
+      --clr-gold-600:    #0369a1;
+      --clr-gold-500:    #0ea5e9;
+      --clr-gold-400:    #38bdf8;
+      --clr-gold-100:    #e0f2fe;
+      --clr-gold-50:     #f0f9ff;
+
+      /* deeper sky blue — replaces green (prize / win indicators) */
+      --clr-green-700:   #075985;
+      --clr-green-500:   #0284c7;
+      --clr-green-100:   #bae6fd;
+
+      --clr-red-600:     #dc2626;
+      --clr-red-100:     #fee2e2;
+
+      --clr-blue-600:    #1d4ed8;
+      --clr-blue-100:    #dbeafe;
+
+      --clr-text:        #1a0e6e;
+      --clr-text-2:      #4b4880;
+      --clr-text-muted:  #8480b0;
+
+      --shadow-sm:  0 1px 3px rgba(94,74,232,.10), 0 1px 2px rgba(94,74,232,.06);
+      --shadow-md:  0 3px 8px rgba(94,74,232,.13), 0 1px 3px rgba(94,74,232,.08);
+      --shadow-lg:  0 6px 20px rgba(94,74,232,.14), 0 2px 6px rgba(94,74,232,.09);
+
+      /* Shape tokens — keep small/square */
+      --radius-sm:  3px;
+      --radius-md:  4px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--clr-bg);
+      color: var(--clr-text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--clr-surface);
+      border-bottom: 2px solid var(--clr-border);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      height: 54px;
+      gap: 0;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 1px 0 var(--clr-border);
+    }
+    .nav-logo {
+      font-size: 1rem; font-weight: 800;
+      color: var(--clr-indigo-700); margin-right: 2.5rem; text-decoration: none;
+      letter-spacing: -0.02em; text-transform: uppercase;
+    }
+    .nav-logo span {
+      color: var(--clr-text-muted); font-weight: 500; font-size: 0.78rem;
+      margin-left: 0.45rem; text-transform: none; letter-spacing: 0;
+    }
+    .nav-link {
+      padding: 0 1rem;
+      height: 54px;
+      display: inline-flex; align-items: center;
+      color: var(--clr-text-muted); text-decoration: none;
+      font-size: 0.82rem; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .nav-link:hover { color: var(--clr-indigo-700); }
+    .nav-link.active { color: var(--clr-indigo-700); border-bottom-color: var(--clr-indigo-700); }
+    .nav-spacer { flex: 1; }
+    .nav-github {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: var(--clr-text-muted); text-decoration: none; font-size: 0.78rem;
+      padding: 0.35rem 0.75rem; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--clr-border-2); transition: all 0.15s;
+      font-weight: 600; letter-spacing: 0.02em;
+    }
+    .nav-github:hover { color: var(--clr-indigo-700); border-color: var(--clr-indigo-400); background: var(--clr-indigo-50); }
+
+    /* ── Shared utils ── */
+    .container { max-width: 980px; margin: 0 auto; padding: 2.5rem 2rem; }
+    .badge {
+      background: var(--clr-indigo-100);
+      padding: 0.2rem 0.65rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.72rem; color: var(--clr-indigo-700);
+      font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      border-left: 3px solid var(--clr-indigo-500);
+    }
+    .btn {
+      padding: 0.6rem 1.5rem; border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem; font-weight: 700; cursor: pointer;
+      transition: all 0.15s; font-family: inherit;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .btn-primary {
+      background: var(--clr-indigo-700); color: #fff;
+      border-left: 4px solid var(--clr-indigo-900);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-primary:hover { background: var(--clr-indigo-500); }
+    .btn-secondary {
+      background: transparent; color: var(--clr-indigo-700);
+      border: 1.5px solid var(--clr-indigo-400);
+    }
+    .btn-secondary:hover { background: var(--clr-indigo-50); border-color: var(--clr-indigo-700); }
+    .error-msg { color: var(--clr-red-600); font-size: 0.85rem; margin-top: 0.8rem; font-weight: 600; }
+
+    .ball {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border-radius: 50%;
+      font-size: 0.76rem; font-weight: 700;
+      background: var(--clr-indigo-100); color: var(--clr-indigo-700); margin: 1px;
+      border: 1.5px solid var(--clr-border);
+    }
+    .ball.hit        { background: var(--clr-indigo-500); color: #fff; border-color: var(--clr-indigo-500); }
+    .ball.strong     { background: var(--clr-gold-100); color: var(--clr-gold-600); border: 2px solid var(--clr-gold-500); }
+    .ball.strong-hit { background: var(--clr-gold-500); color: #fff; border-color: var(--clr-gold-600); }
+
+    {% block extra_styles %}{% endblock %}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">Lotto<span>Archive</span></a>
+  <a class="nav-link {% if active=='home' %}active{% endif %}"   href="/">Home</a>
+  <a class="nav-link {% if active=='search' %}active{% endif %}" href="/search">Explore</a>
+  <a class="nav-link {% if active=='facts' %}active{% endif %}"  href="/facts">Facts</a>
+  <a class="nav-link {% if active=='lucky' %}active{% endif %}"  href="/lucky">Lucky Pick</a>
+  <div class="nav-spacer"></div>
+  <span style="font-size:0.72rem; color:var(--clr-text-muted); margin-right:1rem; letter-spacing:0.02em;">Developed by Noam Avraham &amp; Claude Code</span>
+  <button onclick="switchTheme()" style="
+    display:inline-flex; align-items:center; gap:0.4rem;
+    background:none; border:1.5px solid var(--clr-border-2); border-radius:var(--radius-sm);
+    color:var(--clr-text-muted); font-size:0.72rem; font-weight:700; cursor:pointer;
+    padding:0.35rem 0.75rem; margin-right:0.75rem; letter-spacing:0.04em; text-transform:uppercase;
+    font-family:inherit; transition:all 0.15s;
+  " onmouseover="this.style.color='var(--clr-indigo-700)';this.style.borderColor='var(--clr-indigo-400)'"
+     onmouseout="this.style.color='var(--clr-text-muted)';this.style.borderColor='var(--clr-border-2)'">
+    Style
+  </button>
+  <script>
+    function switchTheme() {
+      const p = window.location.pathname;
+      const h = window.location.hash;
+      window.location.href = '/v2' + (p === '/' ? '/' : p) + h;
+    }
+  </script>
+  <a class="nav-github" href="https://github.com/Noam-Avraham/lottery-database" target="_blank" rel="noopener">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.729.083-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
+    </svg>
+    GitHub
+  </a>
+</nav>
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

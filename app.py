@@ -41,6 +41,8 @@ def determine_tier(matches, strong_match):
 
 # ── Pages ─────────────────────────────────────────────────────────────────────
 
+# ── Main design (v2 / light) ───────────────────────────────────────────────────
+
 @app.route("/")
 def home():
     conn = get_db()
@@ -49,23 +51,48 @@ def home():
     ).fetchone()[0] or 0
     conn.close()
     total_prizes_fmt = f"₪{total_prizes / 1_000_000_000:.2f}B"
-    return render_template("home.html", total_prizes_fmt=total_prizes_fmt)
+    return render_template("home_v2.html", total_prizes_fmt=total_prizes_fmt)
 
 @app.route("/search")
 def search():
-    return render_template("search.html")
+    return render_template("search_v2.html")
 
 @app.route("/facts")
 def facts():
-    return render_template("facts.html")
+    return render_template("facts_v2.html")
 
 @app.route("/lucky")
 def lucky():
-    return render_template("lucky.html")
+    return render_template("lucky_v2.html")
 
 @app.route("/images/<filename>")
 def serve_image(filename):
     return send_from_directory(Path(__file__).parent, filename)
+
+
+# ── Alternative design (dark / classic) ───────────────────────────────────────
+
+@app.route("/v2/")
+def home_dark():
+    conn = get_db()
+    total_prizes = conn.execute(
+        "SELECT SUM(winners * prize) FROM prize_tiers WHERE game_type='regular'"
+    ).fetchone()[0] or 0
+    conn.close()
+    total_prizes_fmt = f"₪{total_prizes / 1_000_000_000:.2f}B"
+    return render_template("home.html", total_prizes_fmt=total_prizes_fmt)
+
+@app.route("/v2/search")
+def search_dark():
+    return render_template("search.html")
+
+@app.route("/v2/facts")
+def facts_dark():
+    return render_template("facts.html")
+
+@app.route("/v2/lucky")
+def lucky_dark():
+    return render_template("lucky.html")
 
 
 # ── API ────────────────────────────────────────────────────────────────────────

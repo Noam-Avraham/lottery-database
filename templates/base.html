@@ -65,13 +65,31 @@
 </head>
 <body>
 <nav>
-  <a class="nav-logo" href="/">🎱 Lotto<span>Archive</span></a>
-  <a class="nav-link {% if active=='home' %}active{% endif %}"   href="/">Home</a>
-  <a class="nav-link {% if active=='search' %}active{% endif %}" href="/search">Explore</a>
-  <a class="nav-link {% if active=='facts' %}active{% endif %}"  href="/facts">Interesting Facts</a>
-  <a class="nav-link {% if active=='lucky' %}active{% endif %}"  href="/lucky">🎲 Lucky Pick</a>
+  <a class="nav-logo" href="/v2/">Lotto<span>Archive</span></a>
+  <a class="nav-link {% if active=='home' %}active{% endif %}"   href="/v2/">Home</a>
+  <a class="nav-link {% if active=='search' %}active{% endif %}" href="/v2/search">Explore</a>
+  <a class="nav-link {% if active=='facts' %}active{% endif %}"  href="/v2/facts">Facts</a>
+  <a class="nav-link {% if active=='lucky' %}active{% endif %}"  href="/v2/lucky">Lucky Pick</a>
   <div class="nav-spacer"></div>
   <span style="font-size:0.78rem; color:#4a5568; margin-right:1rem;">Developed by Noam Avraham &amp; Claude Code</span>
+  <button onclick="switchTheme()" style="
+    display:inline-flex; align-items:center; gap:0.4rem;
+    background:none; border:1px solid #2d3748; border-radius:6px;
+    color:#a0aec0; font-size:0.8rem; font-weight:500; cursor:pointer;
+    padding:0.35rem 0.75rem; margin-right:0.75rem;
+    transition:color 0.2s, border-color 0.2s;
+  " onmouseover="this.style.color='#e2e8f0';this.style.borderColor='#718096'"
+     onmouseout="this.style.color='#a0aec0';this.style.borderColor='#2d3748'">
+    Style
+  </button>
+  <script>
+    function switchTheme() {
+      const p = window.location.pathname;
+      const h = window.location.hash;
+      const stripped = p.replace(/^\/v2/, '') || '/';
+      window.location.href = stripped + h;
+    }
+  </script>
   <a class="nav-github" href="https://github.com/Noam-Avraham/lottery-database" target="_blank" rel="noopener">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.729.083-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>

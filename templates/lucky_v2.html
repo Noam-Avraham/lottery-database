@@ -1,0 +1,156 @@
+{% extends "base_v2.html" %}
+{% set active = "lucky" %}
+{% block title %}Lucky Pick — Israel Lotto Archive{% endblock %}
+
+{% block extra_styles %}
+.page-header {
+  background: var(--clr-indigo-900);
+  padding: 2.5rem 2rem; text-align: center;
+  border-bottom: 4px solid var(--clr-indigo-700);
+}
+.page-header h1 { font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 0.06em; text-transform: uppercase; }
+.page-header p  { color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: 0.3rem; }
+
+.lucky-wrap {
+  max-width: 600px; margin: 3rem auto; padding: 0 2rem;
+  display: flex; flex-direction: column; align-items: center; gap: 2rem;
+}
+.lucky-card {
+  width: 100%;
+  background: var(--clr-surface); border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-md); padding: 2.8rem 2rem; text-align: center;
+  box-shadow: var(--shadow-lg); border-top: 4px solid var(--clr-indigo-700);
+}
+.lucky-card h2 {
+  font-size: 0.85rem; color: var(--clr-indigo-700); margin-bottom: 0.5rem;
+  font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.lucky-card .subtitle { color: var(--clr-text-muted); font-size: 0.85rem; margin-bottom: 2rem; line-height: 1.55; }
+
+.lucky-balls {
+  display: flex; justify-content: center; align-items: center;
+  gap: 0.7rem; flex-wrap: wrap; margin: 2rem 0;
+}
+.lucky-ball {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; font-weight: 800;
+  border: 3px solid transparent; transition: opacity 0.35s, transform 0.35s;
+  letter-spacing: -0.03em;
+}
+.lucky-ball.main-ball {
+  background: linear-gradient(135deg, var(--clr-indigo-500) 0%, var(--clr-indigo-700) 100%);
+  color: #fff; border-color: var(--clr-indigo-400);
+  box-shadow: 0 4px 16px rgba(94,74,232,0.4);
+}
+.lucky-ball.strong-ball {
+  background: linear-gradient(135deg, var(--clr-gold-400) 0%, var(--clr-gold-500) 100%);
+  color: #fff; border-color: var(--clr-gold-600);
+  box-shadow: 0 4px 16px rgba(14,165,233,0.45);
+}
+.lucky-ball.placeholder {
+  background: var(--clr-indigo-100); color: var(--clr-indigo-200);
+  border-color: var(--clr-border); font-size: 1.4rem; font-weight: 300;
+}
+.lucky-separator { color: var(--clr-border-2); font-size: 1.8rem; font-weight: 200; margin: 0 0.1rem; }
+
+.note-box {
+  width: 100%;
+  background: var(--clr-indigo-50); border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-sm); border-left: 4px solid var(--clr-indigo-500);
+  padding: 1.1rem 1.4rem;
+  font-size: 0.83rem; color: var(--clr-text-2); line-height: 1.65; text-align: left;
+}
+.note-box strong { color: var(--clr-indigo-700); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.78rem; }
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>🎲 Lucky Pick</h1>
+  <p>Generate a number suggestion weighted by historical draw data.</p>
+</div>
+
+<div class="lucky-wrap">
+  <div class="lucky-card">
+    <h2>Your Lucky Numbers</h2>
+    <p class="subtitle">
+      6 main numbers (1–37) &nbsp;+&nbsp; 1 strong number (1–7)
+    </p>
+
+    <div class="lucky-balls" id="lucky-display">
+      <span class="lucky-ball placeholder">?</span>
+      <span class="lucky-ball placeholder">?</span>
+      <span class="lucky-ball placeholder">?</span>
+      <span class="lucky-ball placeholder">?</span>
+      <span class="lucky-ball placeholder">?</span>
+      <span class="lucky-ball placeholder">?</span>
+      <span class="lucky-separator">|</span>
+      <span class="lucky-ball placeholder">?</span>
+    </div>
+
+    <button class="btn btn-primary" id="lucky-btn" onclick="generateLucky()"
+            style="font-size:1rem; padding:0.8rem 3rem;">
+      Generate Lucky Pick
+    </button>
+    <div id="lucky-error" class="error-msg" style="margin-top:0.75rem;"></div>
+  </div>
+
+  <div class="note-box">
+    <strong>How it works:</strong> Each number's selection probability is weighted by how often it appeared
+    across all historical draws in the archive. Numbers that have been drawn more frequently carry a slightly
+    higher chance of being picked — so this is not a plain random pick, but it is still random.
+    A legal combination is always guaranteed.
+  </div>
+</div>
+
+<script>
+async function generateLucky() {
+  const btn = document.getElementById('lucky-btn');
+  const err = document.getElementById('lucky-error');
+  err.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+
+  try {
+    const data = await fetch('/api/lucky-pick').then(r => r.json());
+    if (data.error) { err.textContent = data.error; return; }
+
+    const display = document.getElementById('lucky-display');
+    display.innerHTML = '';
+
+    const items = [
+      ...data.numbers.map(n => ({ n, cls: 'main-ball' })),
+      { n: null, cls: 'sep' },
+      { n: data.strong, cls: 'strong-ball' },
+    ];
+
+    items.forEach(({ n, cls }, i) => {
+      if (cls === 'sep') {
+        const sep = document.createElement('span');
+        sep.className = 'lucky-separator';
+        sep.textContent = '|';
+        display.appendChild(sep);
+        return;
+      }
+      const el = document.createElement('span');
+      el.className = `lucky-ball ${cls}`;
+      el.textContent = n;
+      el.style.opacity = '0';
+      el.style.transform = 'scale(0.4)';
+      display.appendChild(el);
+      setTimeout(() => {
+        el.style.transition = 'opacity 0.35s, transform 0.35s';
+        el.style.opacity = '1';
+        el.style.transform = 'scale(1)';
+      }, i * 110);
+    });
+
+  } catch (e) {
+    err.textContent = 'Failed to generate. Is the server running?';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate Again';
+  }
+}
+</script>
+{% endblock %}

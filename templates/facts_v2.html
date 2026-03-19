@@ -1,0 +1,305 @@
+{% extends "base_v2.html" %}
+{% set active = "facts" %}
+{% block title %}Interesting Facts — Israel Lotto Archive{% endblock %}
+
+{% block extra_styles %}
+.page-header {
+  background: var(--clr-indigo-900);
+  padding: 2.5rem 2rem; text-align: center;
+  border-bottom: 4px solid var(--clr-indigo-700);
+}
+.page-header h1 { font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 0.06em; text-transform: uppercase; }
+.page-header p  { color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: 0.3rem; }
+
+.section-title {
+  font-size: 0.72rem; font-weight: 800; color: var(--clr-indigo-700);
+  margin-bottom: 0.25rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding-left: 0.75rem; border-left: 4px solid var(--clr-indigo-500);
+}
+.section-sub   { color: var(--clr-text-muted); font-size: 0.83rem; margin-bottom: 1.5rem; padding-left: 1rem; }
+
+/* Stat cards */
+.stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(195px,1fr)); gap:1rem; margin-bottom:3rem; }
+.stat-card {
+  background: var(--clr-surface); border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-md); padding: 1.4rem 1.2rem; text-align: center;
+  box-shadow: var(--shadow-sm); transition: all 0.15s;
+  border-top: 3px solid var(--clr-indigo-200);
+}
+.stat-card:hover { box-shadow: var(--shadow-md); border-top-color: var(--clr-indigo-500); }
+.stat-card .sv { font-size: 1.9rem; font-weight: 800; color: var(--clr-indigo-700); letter-spacing: -0.04em; }
+.stat-card .sl { font-size: 0.75rem; color: var(--clr-text-muted); margin-top: 0.35rem; line-height: 1.5; text-transform: uppercase; letter-spacing: 0.04em; }
+.stat-card.blue  { border-top-color: var(--clr-blue-600); }
+.stat-card.green { border-top-color: var(--clr-green-500); }
+.stat-card.red   { border-top-color: var(--clr-red-600); }
+.stat-card.blue .sv  { color: var(--clr-blue-600); }
+.stat-card.green .sv { color: var(--clr-green-700); }
+.stat-card.red .sv   { color: var(--clr-red-600); }
+
+/* Pairs / triplets table */
+.rank-table { width:100%; border-collapse:collapse; font-size:0.87rem; margin-bottom:3rem; background: var(--clr-surface); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); border: 1.5px solid var(--clr-border); }
+.rank-table thead th { background: var(--clr-indigo-900); padding:0.6rem 1rem; text-align:left; color:#fff; font-weight:700; border-bottom:2px solid var(--clr-indigo-700); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; }
+.rank-table tbody tr { border-bottom:1px solid var(--clr-border); }
+.rank-table tbody tr:hover { background: var(--clr-indigo-50); border-left: 3px solid var(--clr-indigo-400); }
+.rank-table tbody td { padding:0.55rem 1rem; }
+.rank-num { font-size:0.76rem; color:var(--clr-text-muted); font-weight: 700; font-family: monospace; }
+
+.ball {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:30px; height:30px; border-radius:50%;
+  font-size:0.76rem; font-weight:700;
+  background: var(--clr-indigo-100); color: var(--clr-indigo-700); margin:1px;
+  border: 1.5px solid var(--clr-border);
+}
+.ball.strong { background: var(--clr-gold-100); color: var(--clr-gold-600); border: 2px solid var(--clr-gold-400); }
+.count-bar-wrap { display:flex; align-items:center; gap:0.6rem; }
+.count-bar { height:7px; background: linear-gradient(90deg, var(--clr-indigo-400), var(--clr-indigo-500)); border-radius:4px; min-width:4px; }
+.count-val { font-size:0.81rem; color:var(--clr-text-2); font-weight: 500; }
+
+/* Hot/cold */
+.hc-row { display:flex; gap:1.25rem; flex-wrap:wrap; margin-bottom:3rem; }
+.hc-card {
+  flex:1; min-width:240px; background: var(--clr-surface);
+  border: 1.5px solid var(--clr-border); border-radius: var(--radius-md); padding:1.3rem;
+  box-shadow: var(--shadow-sm);
+}
+.hc-card h3 { font-size:0.72rem; font-weight:800; margin-bottom:1rem; text-transform:uppercase; letter-spacing:0.08em; }
+.hc-card.hot  { border-left: 4px solid var(--clr-red-600); }
+.hc-card.cold { border-left: 4px solid var(--clr-blue-600); }
+.hc-card.hot  h3 { color:var(--clr-red-600); }
+.hc-card.cold h3 { color:var(--clr-blue-600); }
+.hc-item { display:flex; align-items:center; gap:0.8rem; padding:0.35rem 0; border-bottom:1px solid var(--clr-border); }
+.hc-item:last-child { border-bottom:none; }
+.hc-n { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.83rem; font-weight:800; }
+.hc-n.hot-n  { background:var(--clr-red-100); color:var(--clr-red-600); border: 1.5px solid #fca5a5; }
+.hc-n.cold-n { background:var(--clr-blue-100); color:var(--clr-blue-600); border: 1.5px solid #93c5fd; }
+.hc-label { flex:1; font-size:0.79rem; color:var(--clr-text-muted); }
+.hc-count { font-size:0.85rem; font-weight:800; }
+.hc-count.hot-c  { color:var(--clr-red-600); }
+.hc-count.cold-c { color:var(--clr-blue-600); }
+.count-bar-wrap { display:flex; align-items:center; gap:0.6rem; }
+.count-bar { height:6px; background:var(--clr-indigo-500); border-radius:0; min-width:4px; }
+.count-val { font-size:0.8rem; color:var(--clr-text-2); font-weight:600; }
+
+/* Jackpot records */
+.jrecord-list { display:flex; flex-direction:column; gap:0.6rem; margin-bottom:3rem; }
+.jrecord {
+  background: var(--clr-surface); border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  padding:1rem 1.3rem; display:flex; align-items:center; gap:1.2rem; flex-wrap:wrap;
+  box-shadow: var(--shadow-sm); transition: all 0.15s;
+  border-left: 4px solid var(--clr-gold-400);
+}
+.jrecord:hover { box-shadow: var(--shadow-md); border-left-color: var(--clr-gold-600); }
+.jr-label { font-size:0.68rem; color:var(--clr-text-muted); text-transform:uppercase; letter-spacing:.07em; font-weight:700; }
+.jr-val   { font-size:1rem; font-weight:800; color:var(--clr-gold-600); margin-top:0.1rem; letter-spacing:-0.02em; }
+.jr-meta  { font-size:0.79rem; color:var(--clr-text-2); margin-top:0.15rem; font-family:monospace; }
+.jr-icon  { font-size:1.7rem; }
+
+/* Images */
+.img-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(400px,1fr)); gap:1.5rem; }
+.img-card {
+  background: var(--clr-surface); border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-md); overflow:hidden; box-shadow: var(--shadow-sm);
+}
+.img-card h3 { padding:1rem 1.2rem 0.4rem; font-size:0.76rem; color:var(--clr-indigo-700); font-weight:800; text-transform:uppercase; letter-spacing:0.06em; }
+.img-card p  { padding:0 1.2rem 0.8rem; font-size:0.79rem; color:var(--clr-text-muted); line-height:1.55; }
+.img-card img { width:100%; display:block; border-top:2px solid var(--clr-border); cursor:zoom-in; transition:opacity 0.15s; }
+.img-card img:hover { opacity:0.88; }
+.zoom-hint { padding:0 1.2rem 0.7rem; font-size:0.72rem; color:var(--clr-text-muted); }
+
+/* Lightbox */
+.lightbox { display:none; position:fixed; inset:0; z-index:1000; background:rgba(15,8,60,0.94); align-items:center; justify-content:center; cursor:zoom-out; }
+.lightbox.open { display:flex; }
+.lightbox img { max-width:95vw; max-height:95vh; border-radius:var(--radius-md); box-shadow:0 0 80px rgba(94,74,232,0.5); cursor:default; }
+.lightbox-close { position:fixed; top:1rem; right:1.2rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:1.2rem; cursor:pointer; line-height:1; z-index:1001; width:34px; height:34px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; }
+.lightbox-close:hover { background:rgba(255,255,255,0.22); }
+
+.loading-msg { color:var(--clr-text-muted); text-align:center; padding:3rem; font-size:0.9rem; letter-spacing:0.04em; text-transform:uppercase; }
+{% endblock %}
+
+{% block content %}
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">&#x2715;</button>
+  <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()"/>
+</div>
+
+<div class="page-header">
+  <h1>Interesting Facts</h1>
+  <p>Statistical insights from 1,672 draws — patterns, records, hot &amp; cold numbers, and more.</p>
+</div>
+
+<div class="container" id="facts-container">
+  <div class="loading-msg" id="loading">Loading statistics…</div>
+</div>
+
+<script>
+async function loadFacts() {
+  const data = await fetch('/api/facts').then(r => r.json());
+  const c = document.getElementById('facts-container');
+  document.getElementById('loading').remove();
+
+  c.innerHTML += `
+    <div class="section-title">Overview</div>
+    <div class="section-sub">Key numbers from the database</div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="sv">${data.total_draws.toLocaleString()}</div>
+        <div class="sl">Total Draws<br/>${data.first_draw.date} – ${data.last_draw.date}</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="sv">${(16273488).toLocaleString()}</div>
+        <div class="sl">Total possible combinations<br/>(C(37,6) × 7 strong)</div>
+      </div>
+      <div class="stat-card green">
+        <div class="sv">${data.coverage_pct}%</div>
+        <div class="sl">Coverage — unique combos<br/>drawn vs possible</div>
+      </div>
+      <div class="stat-card ${data.repeated_combos===0?'green':'red'}">
+        <div class="sv">${data.repeated_combos}</div>
+        <div class="sl">Exact combinations<br/>drawn more than once</div>
+      </div>
+      <div class="stat-card">
+        <div class="sv">${data.avg_sum}</div>
+        <div class="sl">Average sum of 6 numbers<br/>(theoretical: 114.0)</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="sv">${data.jackpot_count}</div>
+        <div class="sl">Draws with at least one<br/>6+Strong jackpot winner</div>
+      </div>
+    </div>`;
+
+  c.innerHTML += `
+    <div class="section-title">Hot &amp; Cold Numbers</div>
+    <div class="section-sub">Based on the last 50 draws</div>
+    <div class="hc-row">
+      <div class="hc-card hot">
+        <h3>🔥 Hottest Numbers</h3>
+        ${data.hot.map(h=>`
+          <div class="hc-item">
+            <div class="hc-n hot-n">${h.num}</div>
+            <div class="hc-label">appeared in last 50 draws</div>
+            <div class="hc-count hot-c">${h.count}×</div>
+          </div>`).join('')}
+      </div>
+      <div class="hc-card cold">
+        <h3>🧊 Coldest Numbers</h3>
+        ${data.cold.map(h=>`
+          <div class="hc-item">
+            <div class="hc-n cold-n">${h.num}</div>
+            <div class="hc-label">appearances in last 50 draws</div>
+            <div class="hc-count cold-c">${h.count}×</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  const maxP = data.top_pairs[0].count;
+  c.innerHTML += `
+    <div class="section-title">Most Common Pairs</div>
+    <div class="section-sub">Number pairs that appear together most often across all draws</div>
+    <table class="rank-table">
+      <thead><tr><th>#</th><th>Pair</th><th>Appearances</th></tr></thead>
+      <tbody>
+        ${data.top_pairs.map((p,i)=>`
+          <tr>
+            <td class="rank-num">${i+1}</td>
+            <td>${p.nums.map(n=>`<span class="ball">${n}</span>`).join('')}</td>
+            <td>
+              <div class="count-bar-wrap">
+                <div class="count-bar" style="width:${Math.round(p.count/maxP*160)}px"></div>
+                <span class="count-val">${p.count} times</span>
+              </div>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+
+  const maxT = data.top_triplets[0].count;
+  c.innerHTML += `
+    <div class="section-title">Most Common Triplets</div>
+    <div class="section-sub">Three numbers that appear together most often</div>
+    <table class="rank-table">
+      <thead><tr><th>#</th><th>Triplet</th><th>Appearances</th></tr></thead>
+      <tbody>
+        ${data.top_triplets.map((t,i)=>`
+          <tr>
+            <td class="rank-num">${i+1}</td>
+            <td>${t.nums.map(n=>`<span class="ball">${n}</span>`).join('')}</td>
+            <td>
+              <div class="count-bar-wrap">
+                <div class="count-bar" style="width:${Math.round(t.count/maxT*160)}px"></div>
+                <span class="count-val">${t.count} times</span>
+              </div>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+
+  c.innerHTML += `
+    <div class="section-title">Jackpot Records</div>
+    <div class="section-sub">Notable jackpot events in the archive</div>
+    <div class="jrecord-list">
+      <div class="jrecord">
+        <div class="jr-icon">💰</div>
+        <div>
+          <div class="jr-label">Biggest jackpot ever</div>
+          <div class="jr-val">₪${data.biggest_jackpot.prize.toLocaleString()}</div>
+          <div class="jr-meta">Draw #${data.biggest_jackpot.id} &nbsp;·&nbsp; ${data.biggest_jackpot.date} &nbsp;·&nbsp; ${data.biggest_jackpot.winners} winner(s)</div>
+        </div>
+      </div>
+      <div class="jrecord">
+        <div class="jr-icon">👥</div>
+        <div>
+          <div class="jr-label">Most jackpot winners in a single draw</div>
+          <div class="jr-val">${data.most_winners.winners} winners</div>
+          <div class="jr-meta">Draw #${data.most_winners.id} &nbsp;·&nbsp; ${data.most_winners.date} &nbsp;·&nbsp; ₪${data.most_winners.prize.toLocaleString()} each</div>
+        </div>
+      </div>
+      <div class="jrecord">
+        <div class="jr-icon">🏜️</div>
+        <div>
+          <div class="jr-label">Longest jackpot drought</div>
+          <div class="jr-val">${data.longest_drought} consecutive draws</div>
+          <div class="jr-meta">without a single 6+Strong winner</div>
+        </div>
+      </div>
+      <div class="jrecord">
+        <div class="jr-icon">📅</div>
+        <div>
+          <div class="jr-label">Most common jackpot size</div>
+          <div class="jr-val">₪${data.most_common_prize.prize.toLocaleString()}</div>
+          <div class="jr-meta">Set as first prize in ${data.most_common_prize.count} draws</div>
+        </div>
+      </div>
+    </div>`;
+
+  c.innerHTML += `
+    <div class="section-title">Frequency Graphs</div>
+    <div class="section-sub">Generated from all 1,672 draws — total appearances, by day of week (%), by jackpot prize tier</div>
+    <div class="img-grid">
+      <div class="img-card">
+        <h3>Main Numbers (1–37)</h3>
+        <p>How often each number was drawn, split by day of week (normalised %) and by jackpot prize bracket.</p>
+        <img src="/images/stats_main_numbers.png" alt="Main number frequency charts" loading="lazy" onclick="openLightbox(this.src)"/>
+      </div>
+      <div class="img-card">
+        <h3>Strong (Bonus) Number (1–7)</h3>
+        <p>Frequency of each strong number. Should be near-uniform (~14.3% per number per day).</p>
+        <img src="/images/stats_strong_number.png" alt="Strong number frequency charts" loading="lazy" onclick="openLightbox(this.src)"/>
+      </div>
+    </div>`;
+}
+
+loadFacts();
+
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightbox-img').src = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+{% endblock %}
